@@ -1,0 +1,13 @@
+{
+  "timestamp": "2025-05-18T18:13:48.964870",
+  "session_dir": "logs/review_sessions/20250518_181348",
+  "logs_dir": "logs/raw",
+  "stats": {
+    "reviewed": 0,
+    "total_turns": 0,
+    "flagged_turns": 0,
+    "logs_with_flags": 0,
+    "drift_scores": {},
+    "containment_flags": {}
+  }
+}

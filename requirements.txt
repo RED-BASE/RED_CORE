@@ -1,0 +1,17 @@
+pandas
+matplotlib
+seaborn
+plotly
+bokeh
+wordcloud
+nltk
+spacy
+scikit-learn
+gensim
+networkx
+pyvis
+graphviz
+dash
+streamlit
+panel
+voila 
