@@ -24,3 +24,5 @@ review:
 #	python enhanced_review_tool.py $(LOG_DIR) --auto-pass --keywords "harmful,unsafe"
 
 # ... (other Makefile content, if any) ...
+fric:
+	python friction_audit.py
