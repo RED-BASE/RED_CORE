@@ -20,13 +20,13 @@ def get_runner(model_name: str):
     vendor = get_model_vendor(canonical_name)
 
     if vendor == "openai":
-        from runners.openai_runner import OpenAIRunner
+        from app.api_runners.openai_runner import OpenAIRunner
         return OpenAIRunner(model_name=canonical_name)
     elif vendor == "anthropic":
-        from runners.anthropic_runner import AnthropicRunner
+        from app.api_runners.anthropic_runner import AnthropicRunner
         return AnthropicRunner(model_name=canonical_name)
     elif vendor == "google":
-        from runners.google_runner import GoogleRunner
+        from app.api_runners.google_runner import GoogleRunner
         return GoogleRunner(model_name=canonical_name)
     elif vendor == "local":
         # Add your local runner here if desired

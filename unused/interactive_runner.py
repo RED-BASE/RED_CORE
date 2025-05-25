@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import argparse
 from llama_cpp_runner import LlamaCppRunner
-from runners.openai_runner import OpenAIRunner
+from app.api_runners.openai_runner import OpenAIRunner
 from unused.attack_runner import run_attack
 
 ATTACKS_DIR = "prompts_user/"
