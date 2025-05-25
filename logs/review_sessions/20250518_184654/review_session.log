@@ -1,7 +1,0 @@
-Log Review Session Started: 2025-05-18T18:46:54.442838
-Session Directory: logs/review_sessions/20250518_184654
-Logs Directory: logs/raw
-
-2025-05-18T18:47:20.515386: Marked turn 1 in GRD-C37S-SYS00-USR01-2025-05-18-1127-35E2C5.json as reviewed
-2025-05-18T18:50:49.879886: Saved updates to GRD-C37S-SYS00-USR01-2025-05-18-1127-35E2C5.json before quitting.
-2025-05-18T18:50:49.880435: Review session ended. Summary exported to logs/review_sessions/20250518_184654/review_summary.json.
