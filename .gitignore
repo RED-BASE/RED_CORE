@@ -7,8 +7,8 @@ __pycache__/
 *.pyo
 
 # --- ENVIRONMENTS & SECRETS ---
-.env
-.env.*
+
+*.env
 *.secret
 *.key
 *.pem
