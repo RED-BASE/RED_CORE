@@ -3,27 +3,30 @@
 ## 🚀 Short Run Templates
 
 ### 🔹 GPT-4o (Single Turn)
-```bash
-python runners/run_exploit_yaml.py \
-  --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
-  --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
-  --model gpt-4o
+<!-- DEPRECATED: runners/run_exploit_yaml.py no longer exists. Use poetry run run-experiments ... instead. -->
+```
+# python runners/run_exploit_yaml.py \
+#   --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
+#   --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
+#   --model gpt-4o
 ```
 
 ### 🔹 Claude 3 Opus
-```bash
-python runners/run_exploit_yaml.py \
-  --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
-  --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
-  --model claude-3-opus
+<!-- DEPRECATED: runners/run_exploit_yaml.py no longer exists. Use poetry run run-experiments ... instead. -->
+```
+# python runners/run_exploit_yaml.py \
+#   --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
+#   --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
+#   --model claude-3-opus
 ```
 
 ### 🔹 Gemini Flash
-```bash
-python runners/run_exploit_yaml.py \
-  --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
-  --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
-  --model gemini-flash
+<!-- DEPRECATED: runners/run_exploit_yaml.py no longer exists. Use poetry run run-experiments ... instead. -->
+```
+# python runners/run_exploit_yaml.py \
+#   --path prompts_user/guardrail_decay/usr_guardrail_decay_01.yaml \
+#   --sys-prompt prompts_system/sys_guardrail_decay_01.yaml \
+#   --model gemini-flash
 ```
 
 ---

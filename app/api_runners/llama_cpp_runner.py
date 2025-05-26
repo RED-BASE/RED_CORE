@@ -112,5 +112,3 @@ class LlamaCppRunner:
         }
 
 
-if __name__ == '__main__':
-    print(f'Running {__file__}...')

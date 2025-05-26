@@ -644,7 +644,3 @@ def main():
         reviewer.log_action(f"Review session (batch mode) ended. Summary exported to {summary_path}.")
     else:
         reviewer.run()
-
-
-if __name__ == "__main__":
-    main()

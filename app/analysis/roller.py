@@ -86,12 +86,15 @@ def rollup(mode, csv_path, output_path=None):
     # Default output inside logs/rolled/rolled_logs.csv
     if output_path is None:
         output_path = "logs/rolled/rolled_logs.csv"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     if mode == "collapse":
         df = generate_collapse_summary(csv_path)
-        df.to_csv(output_path, index=False)
-        print(f"✅ Collapse summary saved to: {output_path}")
+        # --- File writing removed ---
+        # The following code should be handled by the caller (e.g., run_experiments.py):
+        # df.to_csv(output_path, index=False)
+        # print(f"✅ Collapse summary saved to: {output_path}")
+        # --- End file writing ---
     elif mode == "drift":
         print("[TODO] Drift analytics not yet implemented.")
     elif mode == "attack":
@@ -100,12 +103,4 @@ def rollup(mode, csv_path, output_path=None):
         raise ValueError(f"Unknown mode: {mode}")
 
     print(f"[INFO] Next: Review {output_path} or feed into notebook for analysis.")
-
-if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Roll up analytics from flat logs.")
-    parser.add_argument("--mode", choices=["collapse", "drift", "attack"], default="collapse")
-    parser.add_argument("--input", required=True, help="Path to flattened CSV (from flattener)")
-    parser.add_argument("--output", help="Output CSV path (default: logs/rolled/rolled_logs.csv)")
-    args = parser.parse_args()
-    rollup(args.mode, args.input, args.output)
+    return df

@@ -1,9 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: check-experiment-readmes
-        name: Check experiment README completeness
-        entry: python tools/hook_check_experiment_readmes.py
-        language: python
-        types: [file]
-        files: ^data/experiments/[^/]+/README\.md$

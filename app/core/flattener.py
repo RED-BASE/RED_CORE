@@ -51,14 +51,10 @@ def flatten_guardrail_logs_from_dir(log_dir: str) -> pd.DataFrame:
         except Exception as e:
             print(f"[WARN] Failed to parse {log_file.name}: {e}")
 
+    # --- File writing removed ---
+    # The following code should be handled by the caller (e.g., run_experiments.py):
+    # df = flatten_guardrail_logs_from_dir(args.log_dir)
+    # df.to_csv(args.output, index=False)
+    # print(f"[INFO] Flattened {len(df)} log entries to {args.output}.")
+    # --- End file writing ---
     return pd.DataFrame(flattened_data)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Flatten raw logs to a turn-level CSV.")
-    parser.add_argument("--log-dir", default="logs/raw", help="Directory containing JSON logs")
-    parser.add_argument("--output", default="logs/flattened/flat_logs.csv", help="Output CSV file")
-    args = parser.parse_args()
-
-    df = flatten_guardrail_logs_from_dir(args.log_dir)
-    df.to_csv(args.output, index=False)
-    print(f"[INFO] Flattened {len(df)} log entries to {args.output}.")
