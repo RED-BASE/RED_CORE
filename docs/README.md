@@ -54,3 +54,11 @@ Great for thinking out loud, tracking insights, or proving authorship.
 ---
 
 > Built to test the limits of model behavior and the shape of alignment itself.
+
+# docs/
+
+Project documentation and notes.
+
+- **README.md**: Main documentation for the project.
+- **drift_notes.md**: Placeholder for drift-related notes.
+- **scoring rules.md**: Placeholder for scoring documentation.
