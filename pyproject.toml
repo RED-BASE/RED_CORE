@@ -1,14 +1,13 @@
-[project]
+[tool.poetry]
 name = "red-core"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Cassius-Oldenburg", email = "connect@cassius.red"}
+    "Cassius-Oldenburg <connect@cassius.red>"
 ]
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-]
+python = ">=3.11"
+dependencies = []
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
