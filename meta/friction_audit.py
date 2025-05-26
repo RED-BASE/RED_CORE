@@ -1,9 +1,13 @@
 import os
 import csv
 from datetime import datetime
+import subprocess
 
-FOLDER = "well_digger_logs"
+# Correct location
+FOLDER = os.path.join("meta", "friction_audit")
 CSV_FILE = os.path.join(FOLDER, "friction_audit_log.csv")
+SCRIPT_VERSION = os.path.basename(__file__)
+
 QUESTIONS = [
     ("Actionability (1–5):", "actionability"),
     ("Novelty (1–5):", "novelty"),
@@ -15,6 +19,12 @@ QUESTIONS = [
     ("Any other notes?", "notes"),
 ]
 
+def get_git_hash():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    except Exception:
+        return "NO_GIT_HASH"
+
 def ensure_folder():
     if not os.path.exists(FOLDER):
         os.makedirs(FOLDER)
@@ -23,7 +33,7 @@ def write_header_if_needed():
     if not os.path.exists(CSV_FILE):
         with open(CSV_FILE, "w", newline='') as f:
             writer = csv.writer(f)
-            header = ["timestamp"] + [q[1] for q in QUESTIONS]
+            header = ["timestamp", "git_commit", "script"] + [q[1] for q in QUESTIONS]
             writer.writerow(header)
 
 def log_session():
@@ -33,9 +43,10 @@ def log_session():
         ans = input(prompt + " ").strip()
         answers.append(ans)
     now = datetime.now().isoformat()
+    git_hash = get_git_hash()
     with open(CSV_FILE, "a", newline='') as f:
         writer = csv.writer(f)
-        writer.writerow([now] + answers)
+        writer.writerow([now, git_hash, SCRIPT_VERSION] + answers)
     print(f"Session logged to {CSV_FILE}")
 
 if __name__ == "__main__":
