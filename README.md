@@ -53,3 +53,4 @@ All new experiments MUST be created with:
 poetry run run-experiments new --name <experiment_name> --contributors <contributors> --purpose <purpose>
 
 Never copy folders by hand. Never skip README auto-fill. All file creation is enforced and tracked.# RED_CORE
+# RED_CORE
