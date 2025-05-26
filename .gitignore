@@ -103,3 +103,4 @@ failures/
 !pyproject.toml
 .DS_Store
 .env
+.env
