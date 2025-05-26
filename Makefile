@@ -3,7 +3,7 @@
 
 # Create a log entry
 log:
-	bash -m mirror/reflections/create_log_entry.sh
+	bash -m dev_log/reflections/create_log_entry.sh
 
 
 .PHONY: review-logs review-logs-keywords
