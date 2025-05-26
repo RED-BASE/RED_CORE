@@ -4,8 +4,8 @@ import shutil
 from datetime import date
 import argparse
 
-TEMPLATE_PATH = "experiments/exp_template"
-EXPERIMENTS_PATH = "experiments"
+TEMPLATE_PATH = "data/experiments/exp_template"
+EXPERIMENTS_PATH = "data/experiments"
 
 def main():
     parser = argparse.ArgumentParser(description="Scaffold a new experiment folder from template.")

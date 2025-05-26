@@ -7,8 +7,8 @@ NEVER USE PIP INSTALL!!!!
 
 Explicit install instructions:
 
-“Clone repo, run poetry install”
+“This project is script-driven, not a Python package. Use poetry install --no-root.”
 
-“All tools and scripts are run with Poetry.”
+“All tooling is available via poetry run ... commands.”
 
 dev_log/: “This is a developer reflection log. No code or data ever goes here.”
