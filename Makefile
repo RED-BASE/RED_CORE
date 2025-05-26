@@ -25,4 +25,4 @@ review:
 
 # ... (other Makefile content, if any) ...
 fric:
-	python friction_audit.py
+	python meta/friction_audit.py
