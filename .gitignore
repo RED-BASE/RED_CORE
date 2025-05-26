@@ -102,3 +102,4 @@ failures/
 !Makefile
 !pyproject.toml
 .DS_Store
+.env
