@@ -7,3 +7,9 @@ repos:
         language: python
         types: [file]
         files: ^data/experiments/[^/]+/README\.md$
+      - id: block-file-io
+        name: Block forbidden file write/mutation operations
+        entry: python tools/hook_block_file_io.py
+        language: python
+        types: [python, shell]
+        files: \.py$|\.sh$
