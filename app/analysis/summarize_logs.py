@@ -68,7 +68,7 @@ def extract_log_metadata(log_path: Path):
     }
 
 if __name__ == "__main__":
-    log_dir = Path("logs")
+    log_dir = Path("data/experiments/[exp_name]/logs")
     results = []
 
     for log_path in log_dir.glob("*.json"):
