@@ -8,7 +8,7 @@ import yaml
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from app.core.hash_utils import hash_string
-from config import (
+from app.config import (
     LOG_DIR,
     DEFAULT_TEMPERATURE,
     DEFAULT_DRIFT_THRESHOLD,
