@@ -21,7 +21,6 @@ from config import (
 from app.core.context import ConversationContext, ConversationHistory
 from safety.containment import containment_summary, flatten_containment_flags, override_output_if_flagged
 from app.core.log_utils import generate_readable_run_id
-from evaluators.log_evaluator import score_session_log
 import shutil
 from datetime import date
 
@@ -179,20 +178,6 @@ def run_exploit_yaml(
     save_path = logs_dir / f"{log_output['isbn_run_id']}.json"
     save_path.write_text(json.dumps(log_output, indent=2))
     print(f"📁 Log saved to: {save_path}")
-    if score_log:
-        try:
-            score_session_log(save_path)
-            with open(save_path, "r+", encoding="utf-8") as f:
-                data = json.load(f)
-                data["scored"] = True
-                f.seek(0)
-                json.dump(data, f, indent=2)
-                f.truncate()
-            print(f"✅ Drift-scored and marked as scored: {save_path.name}")
-        except Exception as e:
-            print(f"[⚠️ Drift Scoring Error] {e}")
-        return str(save_path)
-    return log_output
 
 def create_experiment_folder(name: str, contributors: str, purpose: str):
     TEMPLATE_PATH = "data/experiments/exp_template"

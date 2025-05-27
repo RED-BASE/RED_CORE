@@ -26,3 +26,10 @@ review:
 # ... (other Makefile content, if any) ...
 fric:
 	python meta/friction_audit.py
+
+
+run:
+	poetry run python -m app.cli.run_experiments run \
+	  --models gpt-4o \
+	  --sys-prompt data/prompts/system/sys_none_00.yaml \
+	  --usr-prompt data/prompts/user/guardrail_decay/usr_test.yaml
