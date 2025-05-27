@@ -48,3 +48,9 @@ def log_session():
         writer = csv.writer(f)
         writer.writerow([now, git_hash, SCRIPT_VERSION] + answers)
     print(f"Session logged to {CSV_FILE}")
+
+
+if __name__ == "__main__":
+    ensure_folder()
+    write_header_if_needed()
+    log_session()

@@ -1,2 +1,8 @@
 timestamp,actionability,novelty,avoidance,third_party,contradiction,contradiction_note,self_doubt,notes
 2025-05-25T14:44:20.609744,5,5,N,Y,Y,"reframed my progress more realistically, i'm not as far as I'd hoped but not as close as i feared either",1,
+
+if __name__ == "__main__":
+    ensure_folder()
+    write_header_if_needed()
+    log_session()
+2025-05-26T18:26:22.480130,0d249dfb5d81c077d4bca58bee06ffa4900a0a8e,friction_audit.py,5,4,N,N,Y,it was less about contradictions and more about reminding me to do it right or else the code will become chaos.,1,Nope
