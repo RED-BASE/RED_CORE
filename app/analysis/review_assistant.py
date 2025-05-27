@@ -40,8 +40,8 @@ def review_log_file(path: Path) -> bool:
 
     return updated
 
-# 🔒 Targeting logs/raw/
-log_dir = Path("logs/raw")
+# 🔒 Targeting logs/
+log_dir = Path("logs")
 log_files = list(log_dir.glob("*.json"))
 processed = 0
 

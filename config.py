@@ -100,7 +100,7 @@ def get_default_model() -> str:
     raise RuntimeError("No default model set in MODEL_REGISTRY.")
 
 # === FILESYSTEM DEFAULTS ===
-LOG_DIR = os.getenv("LOG_DIR", "logs/raw")
+LOG_DIR = os.getenv("LOG_DIR", "logs")
 SUMMARY_DIR = "logs/summary"
 SYSTEM_PROMPT_DIR = "data/prompts/system"
 USER_PROMPT_DIR = "data/prompts/user"
