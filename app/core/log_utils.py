@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 
 from pydantic import ValidationError
-from utils.log_schema import UnifiedEvent
+from app.core.log_schema import UnifiedEvent
 
 # --- REGISTRY IMPORTS ---
 try:
