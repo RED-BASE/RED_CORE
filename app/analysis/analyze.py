@@ -1,3 +1,14 @@
+# Extract metadata and produce summary CSV
+#python app/analysis/analyze.py --mode extract
+
+# Analyze alignment/reflection patterns (requires summary CSV present)
+#python app/analysis/analyze.py --mode alignment
+
+# Analyze system prompt drift patterns
+#python app/analysis/analyze.py --mode system_prompt
+
+
+
 import argparse
 import pandas as pd
 from pathlib import Path
