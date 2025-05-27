@@ -3,7 +3,7 @@ from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 
 # --- CONFIG IMPORT ---
 try:
-    from config import ANTHROPIC_API_KEY, MODEL_ALIASES
+    from app.config import ANTHROPIC_API_KEY, MODEL_ALIASES
 except ImportError:
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
     MODEL_ALIASES = {}

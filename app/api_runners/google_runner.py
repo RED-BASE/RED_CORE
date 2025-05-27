@@ -8,7 +8,7 @@ from google.generativeai import types as gtypes
 
 # --- CONFIG IMPORT ---
 try:
-    from config import GOOGLE_API_KEY, MODEL_ALIASES
+    from app.config import GOOGLE_API_KEY, MODEL_ALIASES
 except ImportError:
     GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
     MODEL_ALIASES = {}

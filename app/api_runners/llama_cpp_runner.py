@@ -8,7 +8,7 @@ llama_cpp.llama_log_callback = lambda msg: None
 
 # Optional config import for dynamic defaults
 try:
-    from config import (
+    from app.config import (
         LOCAL_MODEL_PATH,
         DEFAULT_CONTEXT_SIZE,
         DEFAULT_GPU_LAYERS,
