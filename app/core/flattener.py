@@ -4,7 +4,7 @@ flattener.py
 Flattens all run-level JSON logs into a turn-level CSV for downstream analytics.
 
 Usage:
-    python flattener.py --log-dir data/experiments/[exp_name]/logs --output flattened_guardrail_logs.csv
+    python flattener.py --log-dir data/experiments/guardrail_decay/logs/ --output flattened_guardrail_logs.csv
 """
 import json
 import pandas as pd
