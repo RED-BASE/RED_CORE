@@ -82,3 +82,5 @@ if __name__ == "__main__":
     output_path = summary_dir / "log_summary.csv"
     df.to_csv(output_path, index=False)
     print(f"✅ Summary complete. {len(df)} logs saved to {output_path}")
+
+
