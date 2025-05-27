@@ -8,7 +8,7 @@ from openai import OpenAI
 
 # ---- CONFIG IMPORT ----
 try:
-    from config import OPENAI_API_KEY
+    from app.config import OPENAI_API_KEY
 except ImportError:
     raise ImportError("config.py with OPENAI_API_KEY must be present in project root.")
 
