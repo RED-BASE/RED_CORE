@@ -102,8 +102,8 @@ def get_default_model() -> str:
 # === FILESYSTEM DEFAULTS ===
 LOG_DIR = os.getenv("LOG_DIR", "logs/raw")
 SUMMARY_DIR = "logs/summary"
-SYSTEM_PROMPT_DIR = "prompts_system"
-USER_PROMPT_DIR = "prompts_user"
+SYSTEM_PROMPT_DIR = "data/prompts/system"
+USER_PROMPT_DIR = "data/prompts/user"
 
 # === PROMPT & EXPERIMENT DEFAULTS ===
 DEFAULT_TEMPERATURE = float(os.getenv("DEFAULT_TEMPERATURE", 0.7))
@@ -120,7 +120,7 @@ DEFAULT_DRIFT_THRESHOLD = DRIFT_ANALYSIS_THRESHOLD  # For clarity/legacy CLI
 # === LOCAL MODEL CONFIG ===
 LOCAL_MODEL_PATH = os.getenv("LOCAL_MODEL_PATH", "/Users/redhat/llm_models/mistral-7b-instruct-v0.1.Q4_K_M.gguf")
 DEFAULT_CONTEXT_SIZE = int(os.getenv("DEFAULT_CONTEXT_SIZE", 4096))
-LOCAL_ATTACK_YAML = os.getenv("LOCAL_ATTACK_YAML", "prompts_user/simple_prompt_injection.yaml")
+LOCAL_ATTACK_YAML = os.getenv("LOCAL_ATTACK_YAML", "data/prompts/user/simple_prompt_injection.yaml")
 LOCAL_ATTACK_LOG = os.getenv("LOCAL_ATTACK_LOG", "logs/attack_logs/local_test_run.lrc")
 LOCAL_ATTACK_TURNS = int(os.getenv("LOCAL_ATTACK_TURNS", 1))
 DEFAULT_GPU_LAYERS = int(os.getenv("DEFAULT_GPU_LAYERS", 0))

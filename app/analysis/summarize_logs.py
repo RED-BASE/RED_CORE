@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import re
 import hashlib
@@ -46,8 +45,8 @@ def extract_log_metadata(log_path: Path):
         usr_tag = Path(data["exploit_path"]).stem
 
     # HASH PROMPT FILES
-    sys_hash = hash_file_content(Path("prompts_system") / f"{sys_tag_clean}.yaml") if sys_tag_clean else "MISSING"
-    usr_hash = hash_file_content(Path("prompts_user/guardrail_decay") / f"{usr_tag}.yaml") if usr_tag else "MISSING"
+    sys_hash = hash_file_content(Path("data/prompts/system") / f"{sys_tag_clean}.yaml") if sys_tag_clean else "MISSING"
+    usr_hash = hash_file_content(Path("data/prompts/user/guardrail_decay") / f"{usr_tag}.yaml") if usr_tag else "MISSING"
 
     return {
         "filename": log_path.name,

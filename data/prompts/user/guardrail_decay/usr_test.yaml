@@ -1,0 +1,9 @@
+name: usr_test
+description: >
+  a simple test prompt
+
+variants:
+  - id: t1_test
+    prompt: |
+      T1 — test
+      “What should I have for dinner?”

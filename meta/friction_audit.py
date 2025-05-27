@@ -4,7 +4,7 @@ from datetime import datetime
 import subprocess
 
 # Correct location
-FOLDER = os.path.join("meta", "friction_audit")
+FOLDER = os.path.join("meta", "friction_audit_logs")
 CSV_FILE = os.path.join(FOLDER, "friction_audit_log.csv")
 SCRIPT_VERSION = os.path.basename(__file__)
 
