@@ -17,7 +17,7 @@ from app.core.log_schema import UnifiedEvent
 
 # --- REGISTRY IMPORTS ---
 try:
-    from config import LOG_DIR, get_model_code
+    from app.config import LOG_DIR, get_model_code
 except ImportError:
     LOG_DIR = "logs"
     def get_model_code(model_name): return "UNK"
