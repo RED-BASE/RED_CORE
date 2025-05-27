@@ -7,7 +7,7 @@ import json
 import yaml
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from utils.hash_utils import hash_string
+from app.core.hash_utils import hash_string
 from config import (
     LOG_DIR,
     DEFAULT_TEMPERATURE,
