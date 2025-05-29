@@ -1,9 +1,11 @@
+import json
 import subprocess
 import os
+from app.core.log_schema import SessionLog, Turn
+from app.core.log_utils import log_session
 import argparse
 import sys
 from pathlib import Path
-import json
 import yaml
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -91,93 +93,72 @@ def run_exploit_yaml(
         if hasattr(runner, "set_persona"):
             runner.set_persona(persona_blob)
     history = ConversationHistory(system_prompt=sys_prompt_text)
-    log_output = {
-        "isbn_run_id": generate_readable_run_id(
-            model_name=canonical_model_name,
-            user_prompt_tag=yaml_path.stem,
-            system_prompt_tag=system_prompt_tag,
-            persona=persona_name,
-            experiment_code=DEFAULT_EXPERIMENT_CODE,
-        ),
-        "exploit_path": str(yaml_path),
-        "model": canonical_model_name,
-        "model_code": model_code,
-        "model_vendor": model_vendor,
-        "mode": mode,
-        "temperature": temperature,
-        "system_prompt_tag": system_prompt_tag,
-        "system_prompt_hash": system_prompt_hash,
-        "user_prompt_hash": prompt_hash,
-        "persona": persona_name or "none",
-        "turns": [],
-        "turn_index_offset": 1,
-        "experiment_id": experiment_id or yaml_path.stem,
-        "scenario_hash": scenario_hash or compute_scenario_hash(
-            canonical_model_name,
-            sys_prompt_text,
-            raw_yaml_text,
-            temperature,
-            persona_name
-        ),
-    }
-    for variant in exploit_data.get("variants", []):
-        raw = variant.get("prompt", "")
-        if not raw.strip():
-            print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
-            continue
-        if "\n" in raw:
-            header, body = raw.split("\n", 1)
-        else:
-            header, body = "", raw
-        prompt_body = body.strip()
-        turn_index = len(log_output["turns"]) + 1
-        ctx = ConversationContext(
-            rendered_prompt=prompt_body,
-            persona=persona_name or "none",
-            system_prompt_tag=system_prompt_tag,
-            meta={
-                "variant_id": variant.get("id"),
-                "prompt_header": header.strip(),
-            },
-        )
-        ctx.user_input = prompt_body
-        history.append_user(prompt_body)
-        generate_kwargs = {
-            "temperature": temperature,
-            "turn_index": turn_index,
-        }
-        if model_vendor == "google":
-            generate_kwargs["conversation"] = history
-        ctx.update_output(
-            runner.generate(
-                prompt_body,
-                **generate_kwargs
-            )
-        )
-        history.append_assistant(ctx.model_output)
-        summary = containment_summary(
-            ctx.user_input, ctx.rendered_prompt, ctx.model_output
-        )
-        flags = flatten_containment_flags(summary)
-        if flags and not disable_containment:
-            ctx.update_output(override_output_if_flagged(ctx.model_output, flags))
-        turn = {
-            "turn_index": len(log_output["turns"]) + log_output["turn_index_offset"],
-            **ctx.as_dict(),
-            "system_prompt_text": sys_prompt_text,
-            "containment_flags": flags,
-            "containment_summary": summary,
-            "drift_score": None,
-            "drift_notes": None,
-            "review_status": "pending"
-        }
-        log_output["turns"].append(turn)
-    # File writing and scoring handled here
-    logs_dir = Path(LOG_DIR)
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    save_path = logs_dir / f"{log_output['isbn_run_id']}.json"
-    save_path.write_text(json.dumps(log_output, indent=2))
-    print(f"📁 Log saved to: {save_path}")
+
+# Construct SessionLog
+log_output = SessionLog(
+    isbn_run_id=generate_readable_run_id(
+        model_name=canonical_model_name,
+        user_prompt_tag=yaml_path.stem,
+        system_prompt_tag=system_prompt_tag,
+        persona=persona_name,
+        experiment_code=DEFAULT_EXPERIMENT_CODE,
+    ),
+    exploit_path=str(yaml_path),
+    model=canonical_model_name,
+    model_code=model_code,
+    model_vendor=model_vendor,
+    model_snapshot_id=None,  # Fill this in when you start version tracking
+    mode=mode,
+    temperature=temperature,
+    system_prompt_tag=system_prompt_tag,
+    system_prompt_hash=system_prompt_hash,
+    user_prompt_hash=prompt_hash,
+    persona=persona_name or "none",
+    turn_index_offset=1,
+    experiment_id=experiment_id or yaml_path.stem,
+    scenario_hash=scenario_hash or compute_scenario_hash(
+        canonical_model_name,
+        sys_prompt_text,
+        raw_yaml_text,
+        temperature,
+        persona_name
+    ),
+    turns=[],
+    evaluator_version="unknown",
+)
+
+# Construct Turn objects
+for variant in exploit_data.get("variants", []):
+    ...
+    ctx.update_output(
+        runner.generate(prompt_body, **generate_kwargs)
+    )
+    history.append_assistant(ctx.model_output)
+    summary = containment_summary(...)
+    flags = flatten_containment_flags(summary)
+
+    turn_obj = Turn(
+        turn_index=len(log_output.turns) + log_output.turn_index_offset,
+        rendered_prompt=prompt_body,
+        user_input=prompt_body,
+        model_output=ctx.model_output,
+        persona=ctx.persona,
+        system_prompt_tag=ctx.system_prompt_tag,
+        meta=ctx.meta,
+        system_prompt_text=sys_prompt_text,
+        containment_flags=flags,
+        containment_summary=summary,
+        drift_score=None,
+        drift_notes=None,
+        review_status="pending"
+    )
+    log_output.turns.append(turn_obj)
+
+# Save it
+log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
+log_session(str(log_path), log_output)
+print(f"📁 Log saved to: {log_path}")
+
 
 def create_experiment_folder(name: str, contributors: str, purpose: str):
     TEMPLATE_PATH = "data/experiments/exp_template"
