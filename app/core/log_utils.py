@@ -7,6 +7,8 @@ from pathlib import Path
 import datetime
 import hashlib
 from app.config import get_model_code
+from typing import Optional
+
 
 def generate_readable_run_id(
     model_name: str,
