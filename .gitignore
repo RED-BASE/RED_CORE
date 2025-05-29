@@ -88,6 +88,7 @@ session_transcripts/
 redteam_artifacts/
 attack_payloads/
 failures/
+PORTFOLIO_ARTIFACTS/
 
 # --- REMOTE COLLAB ---
 *.remote
@@ -102,6 +103,4 @@ failures/
 !Makefile
 !pyproject.toml
 .DS_Store
-.env
-.env
 .env
