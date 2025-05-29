@@ -1,66 +1,47 @@
-from pydantic import BaseModel, Field
-from typing import Optional, Dict, Any, Literal
+from pydantic import BaseModel, Field, ValidationError
+from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 
-class EvaluationResult(BaseModel):
-    score: Optional[float] = None
-    criteria: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    consistency_score: Optional[float] = None 
-    unique_responses_count: Optional[int] = None
-    difference: Optional[bool] = None
-    summary: Optional[str] = None
-
-class DefenseDetails(BaseModel):
-    prefix_length: Optional[int] = None
-    args: Optional[Dict[str, Any]] = None
-
-class ComparisonDelta(BaseModel):
-    output_changed: Optional[bool] = None
-    error_status_changed: Optional[bool] = None
-    error_change_type: Optional[Literal['cleared', 'introduced', 'persisted']] = None
-    score_calculated: Optional[bool] = None
-    score_delta: Optional[float] = None
-    score_change_significant: Optional[bool] = None
-    criteria_comparison: Optional[Dict[str, Any]] = None
-
-class UnifiedEvent(BaseModel):
-    timestamp: datetime = Field(default_factory=datetime.now)
-    run_id: str
-    config_hash: str
-    mode: Literal["attack", "consistency", "compare", "replay"]
-    run_label: Optional[str] = None
-    experiment_id: str
-    prompt_type: Optional[str] = None
-    repetition: Optional[int] = None
-    turn_index: Optional[int] = None
-    model: Optional[str] = None
-    model_a: Optional[str] = None
-    model_b: Optional[str] = None
-    base_prompt: Optional[str] = None
-    attack_prompt: Optional[str] = None
-    original_effective_prompt: Optional[str] = None
-    replay_effective_prompt: Optional[str] = None
-    user_prompt_hash: Optional[str] = None
-    system_prompt_hash: Optional[str] = None
-    guardrail_version: Optional[str] = None
-    output: Optional[str] = None
-    error: Optional[str] = None
-    output_a: Optional[str] = None
-    output_b: Optional[str] = None
-    evaluator: Optional[EvaluationResult] = None
-    evaluator_type: Optional[str] = None
-    eval_config: Optional[Dict[str, Any]] = None
-    scoring_summary: Optional[Dict[str, float]] = None
-    drift_label: Optional[str] = None
-    drift_notes: Optional[str] = None
-    defense_applied: Optional[bool] = None
-    defense: Optional[str] = "none"
-    defense_args: Optional[Dict[str, Any]] = {}
-    defense_details: Optional[DefenseDetails] = None
-    comparison_delta: Optional[ComparisonDelta] = None
-    source_log_file: Optional[str] = None
+# 🚨 One full conversational turn: prompt -> model response
+class Turn(BaseModel):
+    turn_index: int  # Order of this turn in the conversation (starts from offset)
+    rendered_prompt: str  # What the model was actually shown this turn
+    user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
+    model_output: str  # The LLM’s full response
+    persona: str  # Active persona used (e.g. "malicious_actor", "none")
+    system_prompt_tag: str  # ID of the system prompt in use (e.g. "sys_guardrail_decay_01:latest")
+    meta: Optional[Dict[str, Any]] = {}  # Variant ID, headers, or any injected metadata
+    system_prompt_text: Optional[str] = None  # Full text of system prompt used (captured here for auditability)
+    containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
+    containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
+    drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
+    drift_notes: Optional[str] = None  # Human or model-generated notes on why this turn shows drift
+    review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
 
     class Config:
-        validate_assignment = True
-        extra = 'ignore'
+        validate_assignment = True  # Will re-check types on every assignment
+        extra = "forbid"  # Disallow any fields not explicitly defined above
+
+# 📦 One full conversation session log, with many turns and metadata
+class SessionLog(BaseModel):
+    isbn_run_id: str  # Unique ID for this log (includes model, prompt tag, timestamp, hash)
+    exploit_path: str  # Filepath to the user YAML that generated these prompts
+    model: str  # Canonical model name (e.g. "gpt-4o")
+    model_code: str  # Short code for this model (e.g. "GPT4O")
+    model_vendor: str  # Organization (e.g. openai, anthropic)
+    model_snapshot_id: Optional[str] = None  # Specific release/snapshot (e.g. "gpt-4o-2025-05-26")
+    mode: Literal["audit", "attack", "consistency", "compare", "replay"]  # Experiment type
+    temperature: float  # Sampling temperature used
+    system_prompt_tag: str  # Which system prompt was applied (ID tag)
+    system_prompt_hash: str  # SHA-1 of system prompt file contents
+    user_prompt_hash: str  # SHA-1 of user prompt YAML contents
+    persona: str  # Persona name in use
+    turn_index_offset: Optional[int] = 1  # Usually 1; adjust if multi-file logs are merged
+    experiment_id: str  # Short code or name for this experiment
+    scenario_hash: str  # Deterministic hash of (prompt + model + temp + persona)
+    turns: List[Turn]  # List of conversational turns (the actual data under analysis)
+    evaluator_version: Optional[str] = "unknown"  # Version tag of the evaluation/scoring tool (if used)
+
+    class Config:
+        validate_assignment = True  # Re-validate every assignment
+        extra = "forbid"  # Reject any unexpected fields to prevent schema drift
