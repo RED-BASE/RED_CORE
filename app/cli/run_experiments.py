@@ -127,20 +127,61 @@ def run_exploit_yaml(
         evaluator_version="unknown",
     )
 
-    # Construct Turn objects
     for variant in exploit_data.get("variants", []):
-        ...
+        raw = variant.get("prompt", "")
+        if not raw.strip():
+            print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
+            continue
+
+        # Split variant into header + prompt body
+        if "\n" in raw:
+            header, body = raw.split("\n", 1)
+        else:
+            header, body = "", raw
+        prompt_body = body.strip()
+
+        # Create new context for this turn
+        turn_index = len(log_output.turns) + log_output.turn_index_offset
+        ctx = ConversationContext(
+            rendered_prompt=prompt_body,
+            persona=persona_name or "none",
+            system_prompt_tag=system_prompt_tag,
+            meta={
+                "variant_id": variant.get("id"),
+                "prompt_header": header.strip(),
+            },
+        )
+        ctx.user_input = prompt_body
+        history.append_user(prompt_body)
+
+        # Model generation
+        generate_kwargs = {
+            "temperature": temperature,
+            "turn_index": turn_index,
+        }
+        if model_vendor == "google":
+            generate_kwargs["conversation"] = history  # Gemini-specific formatting
+
         ctx.update_output(
             runner.generate(prompt_body, **generate_kwargs)
         )
         history.append_assistant(ctx.model_output)
-        summary = containment_summary(...)
-        flags = flatten_containment_flags(summary)
 
+        # Safety evaluation
+        summary = containment_summary(
+            ctx.user_input, ctx.rendered_prompt, ctx.model_output
+        )
+        flags = flatten_containment_flags(summary)
+        if flags and not disable_containment:
+            ctx.update_output(
+                override_output_if_flagged(ctx.model_output, flags)
+            )
+
+        # Log turn
         turn_obj = Turn(
-            turn_index=len(log_output.turns) + log_output.turn_index_offset,
+            turn_index=turn_index,
             rendered_prompt=prompt_body,
-            user_input=prompt_body,
+            user_input=ctx.user_input,
             model_output=ctx.model_output,
             persona=ctx.persona,
             system_prompt_tag=ctx.system_prompt_tag,
@@ -153,6 +194,7 @@ def run_exploit_yaml(
             review_status="pending"
         )
         log_output.turns.append(turn_obj)
+
 
     # Save it
     log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
