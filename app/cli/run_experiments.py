@@ -10,6 +10,7 @@ from typing import Optional
 from datetime import date
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import openai
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -32,7 +33,6 @@ from safety.containment import (
     override_output_if_flagged,
 )
 
-import openai
 
 def compute_sha1(text: str) -> str:
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
