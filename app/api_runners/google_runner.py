@@ -1,5 +1,5 @@
 # runners/google_runner.py
-# Lightweight wrapper for Google Gemini via google-generativeai SDK
+# Finalized Gemini runner for structured harness use
 
 import os
 from dotenv import load_dotenv
@@ -18,16 +18,15 @@ load_dotenv()
 class GoogleRunner:
     """
     Wrapper for Google Gemini models via the google-generativeai SDK.
-    Supports single-turn generate_content calls with optional system prompt.
+    Structured return format for use in harnesses and experiments.
     """
 
-    def __init__(self, model_name: str = "gemini-flash"):
+    def __init__(self, model_name: str = "gemini-pro"):
         api_key = GOOGLE_API_KEY
         if not api_key:
-            raise ValueError("GOOGLE_API_KEY not set - please define it in .env or config.py")
+            raise ValueError("GOOGLE_API_KEY not set - define in .env or config.py")
 
         genai.configure(api_key=api_key)
-        # Use the global MODEL_ALIASES for all runner factories
         canonical = MODEL_ALIASES.get(model_name, model_name)
         try:
             self.model = genai.GenerativeModel(canonical)
@@ -35,15 +34,18 @@ class GoogleRunner:
             raise ValueError(f"Model id '{canonical}' not recognised by SDK: {e}")
 
         self._system_prompt = ""
+        self.last_response = None  # Cached raw response for audit
 
     def set_system_prompt(self, text: str):
         self._system_prompt = text.strip()
 
-    def generate(self, prompt: str, **kw) -> str:
+    def get_model_name(self):
+        return self.model.model_name
+
+    def generate(self, prompt: str, **kw) -> dict:
         try:
             conversation = kw.get("conversation")
             if conversation:
-                # Debug flag: could also be in config
                 if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
                     print("\n🚨 Gemini Debug — Raw Conversation.turns:")
                     for t in conversation.turns:
@@ -79,18 +81,36 @@ class GoogleRunner:
                 ),
             )
 
+            self.last_response = response
+
             if hasattr(response, "text"):
-                return response.text.strip()
+                output_text = response.text.strip()
             elif hasattr(response, "candidates"):
-                return response.candidates[0].content.parts[0].text.strip()
+                output_text = response.candidates[0].content.parts[0].text.strip()
             else:
-                return "[GeminiRunner] No valid text response returned."
+                output_text = "[GeminiRunner] No valid text response returned."
+
+            return {
+                "model_output": output_text,
+                "model_name": self.model.model_name,
+                "usage": {
+                    "prompt_tokens": None,
+                    "completion_tokens": None,
+                    "total_tokens": None
+                },
+                "raw_response": response
+            }
 
         except Exception as e:
             import traceback
             print(f"[GoogleRunner] request failed: {e}")
             traceback.print_exc()
-            return ""
+            return {
+                "model_output": f"[ERROR] {e}",
+                "model_name": self.model.model_name,
+                "usage": None,
+                "raw_response": None
+            }
 
 # ---------------------------------------------------------------------
 # ConversationHistory for Gemini and other runners
@@ -117,7 +137,7 @@ class ConversationHistory:
             if idx == 0 and self.system_prompt:
                 content = f"{self.system_prompt}\n\n{content}"
             messages.append({
-                "role": role if role == "user" else "model",
+                "role": role,
                 "parts": [{"text": content}],
             })
         return messages
