@@ -6,6 +6,7 @@ import sys
 import shutil
 import yaml
 import hashlib
+from typing import Optional
 from datetime import date
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
