@@ -14,9 +14,8 @@ except ImportError:
 
 class OpenAIRunner:
     """
-    Thin wrapper around OpenAI ChatCompletion.
-    • set_system_prompt() stores a system message for every call.
-    • generate() accepts optional kwargs: temperature, max_tokens, etc.
+    Finalized wrapper around OpenAI ChatCompletion API.
+    Returns structured outputs for logging + schema integration.
     """
 
     def __init__(self, api_key: str | None = None, model_name: str = "gpt-4o"):
@@ -26,20 +25,15 @@ class OpenAIRunner:
         self.model_name = model_name
         self._system_prompt: str = ""
         self.client = OpenAI(api_key=self.api_key)
+        self.last_response = None
 
-    # ------------------------------------------------------------------
-    # public helpers
-    # ------------------------------------------------------------------
     def set_system_prompt(self, text: str) -> None:
-        """Store the prompt so generate() can prepend it."""
         self._system_prompt = text.strip()
 
-    def generate(self, prompt: str, **kwds) -> str:
-        """
-        Returns assistant content as str.
-        Recognized kwds: temperature, max_tokens, top_p,
-                         frequency_penalty, presence_penalty
-        """
+    def get_model_name(self):
+        return self.model_name
+
+    def generate(self, prompt: str, **kwds) -> dict:
         messages = []
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
@@ -51,10 +45,29 @@ class OpenAIRunner:
                 messages=messages,
                 **self._build_kwargs(kwds),
             )
-            return response.choices[0].message.content.strip()
+            self.last_response = response
+            output = response.choices[0].message.content.strip()
+            usage = {
+                "prompt_tokens": response.usage.prompt_tokens,
+                "completion_tokens": response.usage.completion_tokens,
+                "total_tokens": response.usage.total_tokens
+            } if hasattr(response, "usage") else None
+
+            return {
+                "model_output": output,
+                "model_name": self.model_name,
+                "usage": usage,
+                "raw_response": response
+            }
+
         except Exception as e:
             print(f"[OpenAIRunner] request failed: {e}")
-            return ""
+            return {
+                "model_output": f"[ERROR] {e}",
+                "model_name": self.model_name,
+                "usage": None,
+                "raw_response": None
+            }
 
     def count_tokens(self, text: str) -> int:
         try:
@@ -66,9 +79,6 @@ class OpenAIRunner:
     def get_info(self) -> Dict[str, Any]:
         return {"model_name": self.model_name, "api_key_present": bool(self.api_key)}
 
-    # ------------------------------------------------------------------
-    # internal
-    # ------------------------------------------------------------------
     @staticmethod
     def _build_kwargs(kwds: Dict[str, Any]) -> Dict[str, Any]:
         allowed = {
