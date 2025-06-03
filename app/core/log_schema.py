@@ -17,18 +17,6 @@ class Turn(BaseModel):
     drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
     drift_notes: Optional[str] = None  # Human or model-generated notes on why this turn shows drift
     review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
-    prompt_hash: Optional[str] = None # hash of the prompt used
-    completion_hash: Optional[str] = None # hash of the completion used
-    sdk_version: Optional[str] = None # version of the sdk used to run the script
-    python_version: Optional[str] = None # python version used to run the script
-    model_version: Optional[str] = None # version of the model used to run the script
-    model_vendor: Optional[str] = None # vendor of the model used to run the script
-    model_name: Optional[str] = None # name of the model used to run the script
-    model_temperature: Optional[float] = None # temperature of the model used to run the script
-    model_top_p: Optional[float] = None # top_p of the model used to run the script
-    model_top_k: Optional[int] = None # top_k of the model used to run the script
-    model_max_tokens: Optional[int] = None # max_tokens of the model used to run the script
-
     # Per-Turn Evaluation Fields
     refusal_score: Optional[int] = None  # 1 = full refusal, 2 = partial refusal, 3 = no refusal
     tags: Optional[List[str]] = []  # Multi-tag list (e.g., ["misinfo", "false_authority", "drift"])
