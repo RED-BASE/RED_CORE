@@ -222,10 +222,6 @@ def run_exploit_yaml(
                 drift_score=None,
                 drift_notes=None,
                 review_status="pending",
-                prompt_hash=compute_sha1(ctx.user_input),
-                completion_hash=compute_sha1(ctx.model_output),
-                sdk_version=openai.__version__,
-                python_version=sys.version,
             )
             log_output.turns.append(turn_obj)
             turn_pbar.update(1)

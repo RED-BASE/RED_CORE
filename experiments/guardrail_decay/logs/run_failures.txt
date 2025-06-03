@@ -1,0 +1,120 @@
+Model: gpt-4o
+Error: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='286d82d93417183c6a08688d99e8a0a467df2828', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 290, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 211, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='286d82d93417183c6a08688d99e8a0a467df2828', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+Model: claude-3-7-sonnet-20250219
+Error: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='d4db3b75f79c6bf86f7e14bd003ca394fcffe903', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 290, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 211, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='d4db3b75f79c6bf86f7e14bd003ca394fcffe903', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+Model: gemini-pro
+Error: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='ab6b6874a45589e70ea919e2393d2e3db76fcf66', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 290, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 211, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+prompt_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='55fc0af6958606ad9fdbfb1110a2d0365c33ac8b', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+completion_hash
+  Extra inputs are not permitted [type=extra_forbidden, input_value='ab6b6874a45589e70ea919e2393d2e3db76fcf66', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+sdk_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='1.82.0', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+python_version
+  Extra inputs are not permitted [type=extra_forbidden, input_value='3.11.8 (main, May  3 202...(clang-1403.0.22.14.1)]', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
