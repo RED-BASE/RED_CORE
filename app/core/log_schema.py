@@ -7,8 +7,8 @@ class Turn(BaseModel):
     turn_index: int  # Order of this turn in the conversation (starts from offset)
     user_input_id: Optional[str] = None  # ID of the prompt variant for this turn
     timestamp: Optional[str] = None  # ISO format time of scoring
-    rendered_prompt: str  # What the model was actually shown this turn
-    user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
+    raw_user_input: str  # Original raw user input (may differ from rendered_user_input if transformed)
+    rendered_user_input: str  # The final prompt shown to the model after all processing
     model_output: str  # The LLM's full response
     persona: str  # Active persona used (e.g. "malicious_actor", "none")
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
