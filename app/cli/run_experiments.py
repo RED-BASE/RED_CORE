@@ -330,16 +330,11 @@ def main():
                     failures.append((model, str(e), tb))
                 return None
 
-        total_models = len(args.models)
-        models_complete = 0
-        print(f"Model runs: 0/{total_models} complete")
-        with ThreadPoolExecutor(max_workers=total_models) as executor:
+        with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
             futures = {executor.submit(run_one, m): m for m in args.models}
             for future in as_completed(futures):
                 _ = future.result()
-                models_complete += 1
-                print(f"Model runs: {models_complete}/{total_models} complete")
-        print()  # Move to next line after unified turn counter
+        print(f"{turn_counter}/{total_turns} turns complete 😎")
 
         # Print summary
         print("")
