@@ -1,4 +1,4 @@
-# --- PYTHON & VIRTUAL ENVS ---
+# --- PYTHON & VIRTUAL ENVS ---.venv/
 .venv/
 venv/
 env/
