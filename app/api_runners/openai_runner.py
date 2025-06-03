@@ -4,6 +4,7 @@ from typing import Dict, Any
 
 import tiktoken
 from openai import OpenAI
+from app.core.context import ConversationHistory
 import time
 
 # ---- CONFIG IMPORT ----
@@ -33,7 +34,27 @@ class OpenAIRunner:
     def get_model_name(self):
         return self.model_name
 
-    def generate(self, prompt: str, conversation=None, **kwds) -> dict:
+    def generate(
+        self,
+        prompt: str,
+        conversation: ConversationHistory | None = None,
+        **kwds,
+    ) -> dict:
+        """Generate a completion from OpenAI.
+
+        Parameters
+        ----------
+        prompt : str
+            The raw user prompt to send when no conversation history is provided.
+        conversation : ConversationHistory | None
+            Optional conversation history used to build the message payload.
+
+        Returns
+        -------
+        dict
+            Dictionary containing ``model_output``, ``model_name``, ``usage``,
+            and ``raw_response``.
+        """
         if conversation is not None:
             messages = conversation.to_openai_format()
         else:
