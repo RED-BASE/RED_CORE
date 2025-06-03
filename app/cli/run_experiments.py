@@ -230,7 +230,6 @@ def run_exploit_yaml(
             input_token_count=result.get('usage', {}).get('prompt_tokens') if result.get('usage') else None,
             output_token_count=result.get('usage', {}).get('completion_tokens') if result.get('usage') else None,
             total_token_count=result.get('usage', {}).get('total_tokens') if result.get('usage') else None,
-            token_count=result.get('usage', {}).get('total_tokens') if result.get('usage') else None,
         )
         log_output.turns.append(turn_obj)
         if user_turn_callback:
@@ -339,6 +338,7 @@ def main():
                 tb = traceback.format_exc()
                 with lock:
                     failures.append((model, str(e), tb))
+                print(f"[ERROR] {model}: {e}")
                 return None
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
