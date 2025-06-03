@@ -49,6 +49,10 @@ class SessionLog(BaseModel):
     evaluator_version: Optional[str] = "unknown"  # Version tag of the evaluation/scoring tool (if used)
     review_meta: Optional[Dict[str, Any]] = None  # Top-level review summary block
     run_command: Optional[str] = None  # Command used to run the test for reproducibility
+    sdk_version: Optional[str] = None  # Version of the SDK used to run the script
+    python_version: Optional[str] = None  # Python version used to run the script
+    log_hash: Optional[str] = None  # Unique hash for this log file
+    red_core_version: Optional[str] = None  # RED_CORE codebase version
 
     class Config:
         validate_assignment = True  # Re-validate every assignment
