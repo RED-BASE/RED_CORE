@@ -16,6 +16,7 @@ from tqdm import tqdm
 import threading
 import copy
 import platform
+import time
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -202,7 +203,9 @@ def run_exploit_yaml(
         }
         if model_vendor == "google":
             generate_kwargs["conversation"] = history
+        start_time = time.time()
         result = runner.generate(prompt_body, **generate_kwargs)
+        latency = time.time() - start_time
         ctx.update_output(result["model_output"])
         ctx.meta.update({
             "vendor_model_id": result.get("model_name"),
@@ -229,6 +232,7 @@ def run_exploit_yaml(
             notes=None,
             reviewer=None,
             tags=[],
+            latency=latency,
         )
         log_output.turns.append(turn_obj)
         turns_complete += 1
