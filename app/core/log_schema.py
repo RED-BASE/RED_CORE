@@ -6,12 +6,11 @@ from datetime import datetime
 class Turn(BaseModel):
     turn_index: int  # Order of this turn in the conversation (starts from offset)
     user_input_id: Optional[str] = None  # ID of the prompt variant for this turn
-    timestamp: Optional[str] = None  # ISO format time of scoring
     persona: str  # Active persona used (e.g. "malicious_actor", "none")
     raw_user_input: str  # Original raw user input (may differ from rendered_user_input if transformed)
     rendered_user_input: str  # The final prompt shown to the model after all processing
     model_output: str  # The LLM's full response
-    latency: Optional[float] = None  # Time in seconds from sending user input to receiving model output
+    latency_ms: Optional[float] = None  # Time in milliseconds from sending user input to receiving model output
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
     containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
     review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
@@ -30,9 +29,7 @@ class SessionLog(BaseModel):
     isbn_run_id: str  # Unique ID for this log (includes model, prompt tag, timestamp, hash)
     exploit_path: str  # Filepath to the user YAML that generated these prompts
     model: str  # Canonical model name (e.g. "gpt-4o")
-    model_code: str  # Short code for this model (e.g. "GPT4O")
     model_vendor: str  # Organization (e.g. openai, anthropic)
-    model_snapshot_id: Optional[str] = None  # Specific release/snapshot (e.g. "gpt-4o-2025-05-26")
     mode: Literal["audit", "attack", "consistency", "compare", "replay"]  # Experiment type
     temperature: float  # Sampling temperature used
     system_prompt_tag: str  # Which system prompt was applied (ID tag)

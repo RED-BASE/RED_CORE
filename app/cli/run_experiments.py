@@ -138,9 +138,7 @@ def run_exploit_yaml(
         ),
         exploit_path=str(yaml_path),
         model=canonical_model_name,
-        model_code=model_code,
         model_vendor=model_vendor,
-        model_snapshot_id=model_snapshot_id,
         mode=mode,
         temperature=temperature,
         system_prompt_tag=system_prompt_tag,
@@ -202,7 +200,7 @@ def run_exploit_yaml(
             generate_kwargs["conversation"] = history
         start_time = time.time()
         result = runner.generate(prompt_body, **generate_kwargs)
-        latency = time.time() - start_time
+        latency_ms = (time.time() - start_time) * 1000
         ctx.update_output(result["model_output"])
         ctx.meta.update({
             "vendor_model_id": result.get("model_name"),
@@ -216,11 +214,10 @@ def run_exploit_yaml(
         turn_obj = Turn(
             turn_index=turn_index,
             user_input_id=variant.get("id"),
-            timestamp=None,
+            persona=ctx.persona,
             raw_user_input=prompt_body,
             rendered_user_input=ctx.rendered_prompt,
             model_output=ctx.model_output,
-            persona=ctx.persona,
             containment_flags=flags,
             containment_summary=summary,
             review_status="pending",
@@ -229,7 +226,7 @@ def run_exploit_yaml(
             notes=None,
             reviewer=None,
             tags=[],
-            latency=latency,
+            latency_ms=latency_ms,
         )
         log_output.turns.append(turn_obj)
         if user_turn_callback:
