@@ -1,10 +1,6 @@
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import llama_cpp
-
-# Suppress metal and verbose logs
-llama_cpp.llama_log_callback = lambda msg: None
 
 # Optional config import for dynamic defaults
 try:
