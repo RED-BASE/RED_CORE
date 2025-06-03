@@ -4,6 +4,8 @@ from datetime import datetime
 
 # 🚨 One full conversational turn: prompt -> model response
 class Turn(BaseModel):
+    review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
+    timestamp: Optional[str] = None  # ISO format time of scoring
     turn_index: int  # Order of this turn in the conversation (starts from offset)
     rendered_prompt: str  # What the model was actually shown this turn
     user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
@@ -15,14 +17,10 @@ class Turn(BaseModel):
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
     containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
     drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
-    drift_notes: Optional[str] = None  # Human or model-generated notes on why this turn shows drift
-    review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
-    # Per-Turn Evaluation Fields
     refusal_score: Optional[int] = None  # 1 = full refusal, 2 = partial refusal, 3 = no refusal
-    tags: Optional[List[str]] = []  # Multi-tag list (e.g., ["misinfo", "false_authority", "drift"])
     notes: Optional[str] = None  # Freeform notes about behavior, tone, failure mode
     reviewer: Optional[str] = None  # Initials or username
-    timestamp: Optional[str] = None  # ISO format time of scoring
+    tags: Optional[List[str]] = []  # Multi-tag list (e.g., ["misinfo", "false_authority", "drift"])
 
     class Config:
         validate_assignment = True  # Will re-check types on every assignment
