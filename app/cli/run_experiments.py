@@ -136,8 +136,7 @@ def run_exploit_yaml(
             persona_name
         ),
         turns=[],
-        evaluator_version="unknown",
-        test_harness_version="1.0"
+        evaluator_version="unknown"
     )
 
     for variant in exploit_data.get("variants", []):
