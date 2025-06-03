@@ -1,6 +1,5 @@
 # runners/openai_runner.py
 
-from pathlib import Path
 from typing import Dict, Any
 
 import tiktoken
@@ -34,11 +33,14 @@ class OpenAIRunner:
     def get_model_name(self):
         return self.model_name
 
-    def generate(self, prompt: str, **kwds) -> dict:
-        messages = []
-        if self._system_prompt:
-            messages.append({"role": "system", "content": self._system_prompt})
-        messages.append({"role": "user", "content": prompt})
+    def generate(self, prompt: str, conversation=None, **kwds) -> dict:
+        if conversation is not None:
+            messages = conversation.to_openai_format()
+        else:
+            messages = []
+            if self._system_prompt:
+                messages.append({"role": "system", "content": self._system_prompt})
+            messages.append({"role": "user", "content": prompt})
 
         max_retries = 5
         backoff = 1
