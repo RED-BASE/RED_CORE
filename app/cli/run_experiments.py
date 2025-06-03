@@ -348,20 +348,24 @@ def main():
         print(f"{turn_counter}/{total_turns} turns complete 😎")
 
         # Print summary
-        print("")
-        print(f"✅ {len(successes)} logs saved to: {log_dir_path}")
+        print("\n===============================")
+        print("🎉 RUN COMPLETE")
+        print(f"😎 {turn_counter}/{total_turns} turns complete")
+        print(f"📄 Logs: {len(successes)}   {'❌ Errors: ' + str(len(failures)) if failures else '✅ Errors: 0'}")
+        print(f"📁 Saved to: {log_dir_path}")
+        print("===============================")
         if failures:
-            print(f"❌ {len(failures)} model(s) failed:")
-            for model, err, _ in failures:
-                print(f"    - {model}: {err}")
-            # Write all errors to a run_failures.txt file
+            from datetime import datetime
             error_log_path = log_dir_path / "run_failures.txt"
             with open(error_log_path, "w") as f:
+                f.write(f"Run state: FAILED\n")
+                f.write(f"Timestamp: {datetime.now().isoformat()}\n")
+                f.write(f"Command: {run_command_str}\n")
+                f.write(f"Failed models: {', '.join(model for model, _, _ in failures)}\n")
+                f.write("\n--- Tracebacks ---\n")
                 for model, err, tb in failures:
-                    f.write(f"Model: {model}\nError: {err}\nTraceback:\n{tb}\n{'-'*40}\n")
-            print(f"  (See {error_log_path} for details)")
-        else:
-            print("All models completed successfully!")
+                    f.write(f"\nModel: {model}\nError: {err}\nTraceback:\n{tb}\n{'-'*40}\n")
+            print(f"❌ See run_failures.txt for details.")
 
 if __name__ == "__main__":
     main()

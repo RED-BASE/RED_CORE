@@ -91,11 +91,11 @@ class GoogleRunner:
                 output_text = "[GeminiRunner] No valid text response returned."
 
             usage = None
-            if hasattr(response, 'usage') and response.usage:
+            if hasattr(response, 'usage_metadata') and response.usage_metadata:
                 usage = {
-                    "prompt_tokens": getattr(response.usage, "prompt_tokens", None),
-                    "completion_tokens": getattr(response.usage, "completion_tokens", None),
-                    "total_tokens": getattr(response.usage, "total_tokens", None)
+                    "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", None),
+                    "completion_tokens": getattr(response.usage_metadata, "candidates_token_count", None),
+                    "total_tokens": getattr(response.usage_metadata, "total_token_count", None)
                 }
             return {
                 "model_output": output_text,
