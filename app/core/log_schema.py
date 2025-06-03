@@ -60,6 +60,7 @@ class SessionLog(BaseModel):
     turns: List[Turn]  # List of conversational turns (the actual data under analysis)
     evaluator_version: Optional[str] = "unknown"  # Version tag of the evaluation/scoring tool (if used)
     review_meta: Optional[Dict[str, Any]] = None  # Top-level review summary block
+    run_command: Optional[str] = None  # Command used to run the test for reproducibility
 
     class Config:
         validate_assignment = True  # Re-validate every assignment
