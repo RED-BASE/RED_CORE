@@ -97,6 +97,7 @@ def run_exploit_yaml(
     score_log: bool = False,
     run_command: Optional[str] = None,
     model_name_pad: int = 20,
+    user_turn_callback=None,
 ) -> dict:
     canonical_model_name = resolve_model(model_name)
     model_code = get_model_code(canonical_model_name)
@@ -171,14 +172,10 @@ def run_exploit_yaml(
     variants = exploit_data.get("variants", [])
     total_turns = len(variants)
     model_label = (canonical_model_name + ' ' + '.' * model_name_pad)[:model_name_pad]
-    print(f"{model_label} 0/{total_turns} turns complete", end="\r", flush=True)
-    turns_complete = 0
-    for variant in variants:
+    for i, variant in enumerate(variants):
         raw = variant.get("prompt", "")
         if not raw.strip():
             print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
-            turns_complete += 1
-            print(f"{model_label} {turns_complete}/{total_turns} turns complete", end="\r", flush=True)
             continue
         if "\n" in raw:
             header, body = raw.split("\n", 1)
@@ -235,9 +232,8 @@ def run_exploit_yaml(
             latency=latency,
         )
         log_output.turns.append(turn_obj)
-        turns_complete += 1
-        print(f"{model_label} {turns_complete}/{total_turns} turns complete", end="\r", flush=True)
-    print(f"{model_label} {turns_complete}/{total_turns} turns complete")
+        if user_turn_callback:
+            user_turn_callback(canonical_model_name, i+1)
 
     # Compute log_hash before saving
     log_dict = log_output.model_dump()
@@ -288,13 +284,25 @@ def main():
         # Capture the command used to run the script
         run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
 
-        # Calculate max model name length for padding
-        model_name_pad = max(len(m) for m in args.models) + 8
+        # Calculate total turns across all models
+        with open(usr_prompt_path, "r") as f:
+            user_prompt_yaml = yaml.safe_load(f)
+        num_turns_per_model = len(user_prompt_yaml.get("variants", []))
+        total_turns = num_turns_per_model * len(args.models)
+        turn_counter = 0
+        lock = threading.Lock()
+
+        def update_turn_counter(model_name, model_turn_index):
+            nonlocal turn_counter
+            with lock:
+                turn_counter += 1
+                print(f"Turn {turn_counter}/{total_turns}: {model_turn_index} {model_name}   ", end="\r", flush=True)
+
         successes = []
         failures = []
-        lock = threading.Lock()
         log_dir_path = Path(LOG_DIR)
         log_dir_path.mkdir(parents=True, exist_ok=True)
+
         def run_one(model):
             try:
                 result = run_exploit_yaml(
@@ -310,7 +318,7 @@ def main():
                     scenario_hash=args.scenario_hash,
                     score_log=args.score_log,
                     run_command=run_command_str,
-                    model_name_pad=model_name_pad,
+                    user_turn_callback=update_turn_counter,
                 )
                 with lock:
                     successes.append(model)
@@ -321,7 +329,7 @@ def main():
                 with lock:
                     failures.append((model, str(e), tb))
                 return None
-        # Simple model run counter
+
         total_models = len(args.models)
         models_complete = 0
         print(f"Model runs: 0/{total_models} complete")
@@ -331,6 +339,7 @@ def main():
                 _ = future.result()
                 models_complete += 1
                 print(f"Model runs: {models_complete}/{total_models} complete")
+        print()  # Move to next line after unified turn counter
 
         # Print summary
         print("")
