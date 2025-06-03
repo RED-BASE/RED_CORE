@@ -218,6 +218,7 @@ def run_exploit_yaml(
             raw_user_input=prompt_body,
             rendered_user_input=ctx.rendered_prompt,
             model_output=ctx.model_output,
+            latency_ms=latency_ms,
             containment_flags=flags,
             containment_summary=summary,
             review_status="pending",
@@ -226,7 +227,10 @@ def run_exploit_yaml(
             notes=None,
             reviewer=None,
             tags=[],
-            latency_ms=latency_ms,
+            input_token_count=result.get('usage', {}).get('prompt_tokens') if result.get('usage') else None,
+            output_token_count=result.get('usage', {}).get('completion_tokens') if result.get('usage') else None,
+            total_token_count=result.get('usage', {}).get('total_tokens') if result.get('usage') else None,
+            token_count=result.get('usage', {}).get('total_tokens') if result.get('usage') else None,
         )
         log_output.turns.append(turn_obj)
         if user_turn_callback:

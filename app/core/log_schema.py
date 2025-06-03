@@ -19,6 +19,10 @@ class Turn(BaseModel):
     notes: Optional[str] = None  # Freeform notes about behavior, tone, failure mode
     reviewer: Optional[str] = None  # Initials or username
     tags: Optional[List[str]] = []  # Multi-tag list (e.g., ["misinfo", "false_authority", "drift"])
+    input_token_count: Optional[int] = None  # Number of input tokens for this turn
+    output_token_count: Optional[int] = None  # Number of output tokens for this turn
+    total_token_count: Optional[int] = None  # Total tokens (input + output) for this turn
+   
 
     class Config:
         validate_assignment = True  # Will re-check types on every assignment
