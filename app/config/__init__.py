@@ -24,13 +24,13 @@ MODEL_REGISTRY = {
         "features": ["text"],
     },
     "claude-3-opus": {
-        "aliases": ["claude", "claude-opus"],
+        "aliases": ["claude-3-opus", "claude-3-opus-20240229"],
         "code": "C3O",
         "vendor": "anthropic",
         "features": ["text"],
     },
-    "claude-3-7-sonnet": {
-        "aliases": [],
+    "claude-3-7-sonnet-20250219": {
+        "aliases": ["claude-3-7-sonnet", "claude-3-7-sonnet-20250219"],
         "code": "C37S",
         "vendor": "anthropic",
         "features": ["text"],
