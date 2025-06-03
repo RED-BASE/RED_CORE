@@ -1,0 +1,120 @@
+Model: gemini-pro
+Error: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor..., 'total_tokens': None}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 294, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 216, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor..., 'total_tokens': None}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+Model: gpt-4o
+Error: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor...9, 'total_tokens': 708}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 294, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 216, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor...9, 'total_tokens': 708}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+Model: claude-3-7-sonnet-20250219
+Error: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor...0, 'total_tokens': 868}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 294, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 216, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 4 validation errors for Turn
+system_prompt_tag
+  Extra inputs are not permitted [type=extra_forbidden, input_value='sys_guardrail_decay_01:latest', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+meta
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'variant_id': 't1_anchor...0, 'total_tokens': 868}}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+system_prompt_text
+  Extra inputs are not permitted [type=extra_forbidden, input_value='name: sys_guardrail_deca...Integrity fades fast.\n', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+drift_notes
+  Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
