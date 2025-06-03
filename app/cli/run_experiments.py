@@ -13,6 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 import shlex
 from tqdm import tqdm
+import threading
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -210,6 +211,7 @@ def run_exploit_yaml(
     log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
     log_session(str(log_path), log_output)
     print(f"📁 Log saved to: {log_path}")
+    return log_output
 
 def main():
     parser = argparse.ArgumentParser()
@@ -251,30 +253,61 @@ def main():
         # Capture the command used to run the script
         run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
 
+        successes = []
+        failures = []
+        lock = threading.Lock()
+        log_dir_path = Path(LOG_DIR)
+        log_dir_path.mkdir(parents=True, exist_ok=True)
+
         def run_one(model):
-            return run_exploit_yaml(
-                yaml_path=str(usr_prompt_path),
-                sys_prompt=str(sys_prompt_path),
-                model_name=model,
-                temperature=args.temperature,
-                mode=args.mode,
-                persona_name=args.persona,
-                drift_threshold=args.drift_threshold,
-                disable_containment=args.disable_containment,
-                experiment_id=args.experiment_id,
-                scenario_hash=args.scenario_hash,
-                score_log=args.score_log,
-                run_command=run_command_str,
-            )
+            try:
+                result = run_exploit_yaml(
+                    yaml_path=str(usr_prompt_path),
+                    sys_prompt=str(sys_prompt_path),
+                    model_name=model,
+                    temperature=args.temperature,
+                    mode=args.mode,
+                    persona_name=args.persona,
+                    drift_threshold=args.drift_threshold,
+                    disable_containment=args.disable_containment,
+                    experiment_id=args.experiment_id,
+                    scenario_hash=args.scenario_hash,
+                    score_log=args.score_log,
+                    run_command=run_command_str,
+                )
+                with lock:
+                    successes.append(model)
+                return result
+            except Exception as e:
+                import traceback
+                tb = traceback.format_exc()
+                with lock:
+                    failures.append((model, str(e), tb))
+                return None
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
             futures = {executor.submit(run_one, m): m for m in args.models}
-            with tqdm(total=len(args.models), desc="Model runs", unit="model") as pbar:
+            with tqdm(total=len(args.models), desc="Model runs", unit="model", position=0) as pbar:
                 for future in as_completed(futures):
                     _ = future.result()
                     pbar.set_postfix_str(f"Finished: {futures[future]}")
                     pbar.update(1)
-                    print(f"✅ {futures[future]} finished successfully")
+
+        # Print summary
+        print("")
+        print(f"✅ {len(successes)} logs saved to: {log_dir_path}")
+        if failures:
+            print(f"❌ {len(failures)} model(s) failed:")
+            for model, err, _ in failures:
+                print(f"    - {model}: {err}")
+            # Write all errors to a run_failures.txt file
+            error_log_path = log_dir_path / "run_failures.txt"
+            with open(error_log_path, "w") as f:
+                for model, err, tb in failures:
+                    f.write(f"Model: {model}\nError: {err}\nTraceback:\n{tb}\n{'-'*40}\n")
+            print(f"  (See {error_log_path} for details)")
+        else:
+            print("All models completed successfully!")
 
 if __name__ == "__main__":
     main()
