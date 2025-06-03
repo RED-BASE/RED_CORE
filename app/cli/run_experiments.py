@@ -233,7 +233,7 @@ def run_exploit_yaml(
         )
         log_output.turns.append(turn_obj)
         if user_turn_callback:
-            user_turn_callback(canonical_model_name, i+1)
+            user_turn_callback(canonical_model_name, i+1, ctx.model_output)
 
     # Compute log_hash before saving
     log_dict = log_output.model_dump()
@@ -292,11 +292,15 @@ def main():
         turn_counter = 0
         lock = threading.Lock()
 
-        def update_turn_counter(model_name, model_turn_index):
+        def update_turn_counter(model_name, model_turn_index, model_output):
             nonlocal turn_counter
             with lock:
                 turn_counter += 1
-                print(f"Turn {turn_counter}/{total_turns}: {model_turn_index} {model_name}   ", end="\r", flush=True)
+                words = model_output.split()
+                for word in words:
+                    print(f"Turn {turn_counter}/{total_turns}: {model_turn_index} {model_name} | {word}   ", end="\r", flush=True)
+                    time.sleep(0.05)
+                # Leave the last word visible until the next turn completes
 
         successes = []
         failures = []
