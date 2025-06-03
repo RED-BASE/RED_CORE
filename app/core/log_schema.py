@@ -11,7 +11,7 @@ class Turn(BaseModel):
     user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
     model_output: str  # The LLM's full response
     persona: str  # Active persona used (e.g. "malicious_actor", "none")
-    meta: Optional[Dict[str, Any]] = {}  # Variant ID, headers, or any injected metadata
+    variant_id: Optional[str] = None  # ID of the prompt variant for this turn
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
     containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
     drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
