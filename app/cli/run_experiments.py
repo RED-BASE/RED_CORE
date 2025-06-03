@@ -301,12 +301,11 @@ def main():
                 max_line_length = 100
                 for word in words:
                     flash = word[:8]  # limit flashed word to 8 characters
-                    line = f"{prefix}{flash}   {model_name} {model_turn_index}"
+                    line = f"{prefix}{flash}"
                     print(line.ljust(max_line_length), end="\r", flush=True)
                     time.sleep(0.05)
-                # Leave the last word visible, padded
                 last_flash = words[-1][:8] if words else ''
-                print(f"{prefix}{last_flash}   {model_name} {model_turn_index}".ljust(max_line_length), end="\r", flush=True)
+                print(f"{prefix}{last_flash}".ljust(max_line_length), end="\r", flush=True)
 
         successes = []
         failures = []
@@ -350,7 +349,10 @@ def main():
         # Print summary
         print("\n===============================")
         print("🎉 RUN COMPLETE")
-        print(f"😎 {turn_counter}/{total_turns} turns complete")
+        if failures:
+            print(f"☹️ {turn_counter}/{total_turns} turns complete")
+        else:
+            print(f"😎 {turn_counter}/{total_turns} turns complete")
         print(f"📄 Logs: {len(successes)}   {'❌ Errors: ' + str(len(failures)) if failures else '✅ Errors: 0'}")
         print(f"📁 Saved to: {log_dir_path}")
         print("===============================")
