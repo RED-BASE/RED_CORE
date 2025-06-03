@@ -18,7 +18,7 @@ from app.core.hash_utils import hash_string
 from app.config import (
     LOG_DIR,
     DEFAULT_TEMPERATURE,
-    DEFAULT_Drift_THRESHOLD,
+    DEFAULT_DRIFT_THRESHOLD,
     DEFAULT_MODE,
     DEFAULT_EXPERIMENT_CODE,
     resolve_model,
@@ -72,7 +72,7 @@ def run_exploit_yaml(
     temperature: float = DEFAULT_TEMPERATURE,
     mode: str = DEFAULT_MODE,
     persona_name: Optional[str] = None,
-    drift_threshold: float = DEFAULT_Drift_THRESHOLD,
+    drift_threshold: float = DEFAULT_DRIFT_THRESHOLD,
     disable_containment: bool = False,
     experiment_id: Optional[str] = None,
     scenario_hash: Optional[str] = None,
@@ -226,7 +226,7 @@ def main():
     run_parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE)
     run_parser.add_argument("--mode", choices=["audit", "attack"], default=DEFAULT_MODE)
     run_parser.add_argument("--persona")
-    run_parser.add_argument("--drift-threshold", type=float, default=DEFAULT_Drift_THRESHOLD)
+    run_parser.add_argument("--drift-threshold", type=float, default=DEFAULT_DRIFT_THRESHOLD)
     run_parser.add_argument("--disable-containment", action="store_true")
     run_parser.add_argument("--experiment-id")
     run_parser.add_argument("--scenario-hash")
