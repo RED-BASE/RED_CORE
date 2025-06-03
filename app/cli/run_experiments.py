@@ -14,6 +14,7 @@ import openai
 import shlex
 from tqdm import tqdm
 import threading
+import copy
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -67,6 +68,18 @@ def load_persona(persona_name: str) -> dict:
     if not persona_path.exists():
         raise FileNotFoundError(f"Persona file not found: {persona_path}")
     return yaml.safe_load(persona_path.read_text())
+
+def get_red_core_version():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    except Exception:
+        return "NO_GIT_HASH"
+
+def compute_log_hash(log_dict):
+    # Exclude log_hash field itself
+    log_copy = copy.deepcopy(log_dict)
+    log_copy.pop("log_hash", None)
+    return hashlib.sha256(json.dumps(log_copy, sort_keys=True, default=str).encode("utf-8")).hexdigest()
 
 def run_exploit_yaml(
     yaml_path: str,
@@ -141,7 +154,10 @@ def run_exploit_yaml(
         ),
         turns=[],
         evaluator_version="unknown",
-        run_command=run_command
+        run_command=run_command,
+        sdk_version=openai.__version__,
+        python_version=sys.version,
+        red_core_version=get_red_core_version(),
     )
 
     variants = exploit_data.get("variants", [])
@@ -208,6 +224,10 @@ def run_exploit_yaml(
             log_output.turns.append(turn_obj)
             turn_pbar.update(1)
 
+    # Compute log_hash before saving
+    log_dict = log_output.model_dump()
+    log_hash = compute_log_hash(log_dict)
+    log_output.log_hash = log_hash
     log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
     log_session(str(log_path), log_output)
     print(f"📁 Log saved to: {log_path}")
