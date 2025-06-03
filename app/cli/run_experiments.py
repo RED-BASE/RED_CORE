@@ -95,6 +95,7 @@ def run_exploit_yaml(
     scenario_hash: Optional[str] = None,
     score_log: bool = False,
     run_command: Optional[str] = None,
+    model_name_pad: int = 20,
 ) -> dict:
     canonical_model_name = resolve_model(model_name)
     model_code = get_model_code(canonical_model_name)
@@ -167,64 +168,70 @@ def run_exploit_yaml(
     )
 
     variants = exploit_data.get("variants", [])
-    with tqdm(total=len(variants), desc=f"{canonical_model_name} turns", unit="turn") as turn_pbar:
-        for variant in variants:
-            raw = variant.get("prompt", "")
-            if not raw.strip():
-                print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
-                turn_pbar.update(1)
-                continue
-            if "\n" in raw:
-                header, body = raw.split("\n", 1)
-            else:
-                header, body = "", raw
-            prompt_body = body.strip()
-            turn_index = len(log_output.turns) + log_output.turn_index_offset
-            ctx = ConversationContext(
-                rendered_prompt=prompt_body,
-                persona=persona_name or "none",
-                system_prompt_tag=system_prompt_tag,
-                meta={
-                    "variant_id": variant.get("id"),
-                    "prompt_header": header.strip(),
-                },
-            )
-            ctx.user_input = prompt_body
-            history.append_user(prompt_body)
-            generate_kwargs = {
-                "temperature": temperature,
-                "turn_index": turn_index,
-            }
-            if model_vendor == "google":
-                generate_kwargs["conversation"] = history
-            result = runner.generate(prompt_body, **generate_kwargs)
-            ctx.update_output(result["model_output"])
-            ctx.meta.update({
-                "vendor_model_id": result.get("model_name"),
-                "usage": result.get("usage"),
-            })
-            history.append_assistant(ctx.model_output)
-            summary = containment_summary(ctx.user_input, ctx.rendered_prompt, ctx.model_output)
-            flags = flatten_containment_flags(summary)
-            if flags and not disable_containment:
-                ctx.update_output(override_output_if_flagged(ctx.model_output, flags))
-            turn_obj = Turn(
-                turn_index=turn_index,
-                rendered_prompt=prompt_body,
-                user_input=ctx.user_input,
-                model_output=ctx.model_output,
-                persona=ctx.persona,
-                system_prompt_tag=ctx.system_prompt_tag,
-                meta=ctx.meta,
-                system_prompt_text=sys_prompt_text,
-                containment_flags=flags,
-                containment_summary=summary,
-                drift_score=None,
-                drift_notes=None,
-                review_status="pending",
-            )
-            log_output.turns.append(turn_obj)
-            turn_pbar.update(1)
+    total_turns = len(variants)
+    model_label = (canonical_model_name + ' ' + '.' * model_name_pad)[:model_name_pad]
+    print(f"{model_label} 0/{total_turns} turns complete", end="\r", flush=True)
+    turns_complete = 0
+    for variant in variants:
+        raw = variant.get("prompt", "")
+        if not raw.strip():
+            print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
+            turns_complete += 1
+            print(f"{model_label} {turns_complete}/{total_turns} turns complete", end="\r", flush=True)
+            continue
+        if "\n" in raw:
+            header, body = raw.split("\n", 1)
+        else:
+            header, body = "", raw
+        prompt_body = body.strip()
+        turn_index = len(log_output.turns) + log_output.turn_index_offset
+        ctx = ConversationContext(
+            rendered_prompt=prompt_body,
+            persona=persona_name or "none",
+            system_prompt_tag=system_prompt_tag,
+            meta={
+                "variant_id": variant.get("id"),
+                "prompt_header": header.strip(),
+            },
+        )
+        ctx.user_input = prompt_body
+        history.append_user(prompt_body)
+        generate_kwargs = {
+            "temperature": temperature,
+            "turn_index": turn_index,
+        }
+        if model_vendor == "google":
+            generate_kwargs["conversation"] = history
+        result = runner.generate(prompt_body, **generate_kwargs)
+        ctx.update_output(result["model_output"])
+        ctx.meta.update({
+            "vendor_model_id": result.get("model_name"),
+            "usage": result.get("usage"),
+        })
+        history.append_assistant(ctx.model_output)
+        summary = containment_summary(ctx.user_input, ctx.rendered_prompt, ctx.model_output)
+        flags = flatten_containment_flags(summary)
+        if flags and not disable_containment:
+            ctx.update_output(override_output_if_flagged(ctx.model_output, flags))
+        turn_obj = Turn(
+            turn_index=turn_index,
+            rendered_prompt=prompt_body,
+            user_input=ctx.user_input,
+            model_output=ctx.model_output,
+            persona=ctx.persona,
+            system_prompt_tag=ctx.system_prompt_tag,
+            meta=ctx.meta,
+            system_prompt_text=sys_prompt_text,
+            containment_flags=flags,
+            containment_summary=summary,
+            drift_score=None,
+            drift_notes=None,
+            review_status="pending",
+        )
+        log_output.turns.append(turn_obj)
+        turns_complete += 1
+        print(f"{model_label} {turns_complete}/{total_turns} turns complete", end="\r", flush=True)
+    print(f"{model_label} {turns_complete}/{total_turns} turns complete")
 
     # Compute log_hash before saving
     log_dict = log_output.model_dump()
@@ -275,12 +282,13 @@ def main():
         # Capture the command used to run the script
         run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
 
+        # Calculate max model name length for padding
+        model_name_pad = max(len(m) for m in args.models) + 8
         successes = []
         failures = []
         lock = threading.Lock()
         log_dir_path = Path(LOG_DIR)
         log_dir_path.mkdir(parents=True, exist_ok=True)
-
         def run_one(model):
             try:
                 result = run_exploit_yaml(
@@ -296,6 +304,7 @@ def main():
                     scenario_hash=args.scenario_hash,
                     score_log=args.score_log,
                     run_command=run_command_str,
+                    model_name_pad=model_name_pad,
                 )
                 with lock:
                     successes.append(model)
@@ -306,14 +315,16 @@ def main():
                 with lock:
                     failures.append((model, str(e), tb))
                 return None
-
-        with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
+        # Simple model run counter
+        total_models = len(args.models)
+        models_complete = 0
+        print(f"Model runs: 0/{total_models} complete")
+        with ThreadPoolExecutor(max_workers=total_models) as executor:
             futures = {executor.submit(run_one, m): m for m in args.models}
-            with tqdm(total=len(args.models), desc="Model runs", unit="model", position=0) as pbar:
-                for future in as_completed(futures):
-                    _ = future.result()
-                    pbar.set_postfix_str(f"Finished: {futures[future]}")
-                    pbar.update(1)
+            for future in as_completed(futures):
+                _ = future.result()
+                models_complete += 1
+                print(f"Model runs: {models_complete}/{total_models} complete")
 
         # Print summary
         print("")
