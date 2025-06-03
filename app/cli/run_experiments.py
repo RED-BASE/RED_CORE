@@ -99,6 +99,27 @@ def run_exploit_yaml(
     model_name_pad: int = 20,
     user_turn_callback=None,
 ) -> dict:
+    """Run an exploit YAML file and return the generated log.
+
+    Args:
+        yaml_path: Path to the YAML file containing user prompt variants.
+        sys_prompt: Path to the system prompt text that will be sent to the model.
+        model_name: Canonical model name or alias to run the prompts against.
+        temperature: Sampling temperature for generation.
+        mode: Execution mode such as ``audit`` or ``attack``.
+        persona_name: Optional persona configuration to load.
+        drift_threshold: Drift threshold used when scoring logs.
+        disable_containment: If ``True`` containment overrides are skipped.
+        experiment_id: Optional identifier recorded in the resulting log.
+        scenario_hash: Optional precomputed scenario hash for reproducibility.
+        score_log: Whether to compute drift/refusal metrics for the run.
+        run_command: Command string recorded for provenance.
+        model_name_pad: Padding width used when printing model progress.
+        user_turn_callback: Optional callback invoked after each user turn.
+
+    Returns:
+        A :class:`SessionLog` object describing the completed run.
+    """
     canonical_model_name = resolve_model(model_name)
     model_code = get_model_code(canonical_model_name)
     model_vendor = get_model_vendor(canonical_model_name)
