@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import google.generativeai as genai
 from google.generativeai import types as gtypes
+import time
 
 # --- CONFIG IMPORT ---
 try:
@@ -43,77 +44,85 @@ class GoogleRunner:
         return self.model.model_name
 
     def generate(self, prompt: str, **kw) -> dict:
-        try:
-            conversation = kw.get("conversation")
-            if conversation:
-                if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
-                    print("\n🚨 Gemini Debug — Raw Conversation.turns:")
-                    for t in conversation.turns:
-                        print(f"  - role: {t['role']}, content: {repr(t['content'])}")
+        max_retries = 5
+        backoff = 1
+        for attempt in range(1, max_retries + 1):
+            try:
+                conversation = kw.get("conversation")
+                if conversation:
+                    if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
+                        print("\n🚨 Gemini Debug — Raw Conversation.turns:")
+                        for t in conversation.turns:
+                            print(f"  - role: {t['role']}, content: {repr(t['content'])}")
 
-                messages = conversation.to_gemini_format()
+                    messages = conversation.to_gemini_format()
 
-                if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
-                    print("\n🚨 Gemini Debug — Formatted messages for Gemini:")
-                    for m in messages:
-                        print(m)
+                    if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
+                        print("\n🚨 Gemini Debug — Formatted messages for Gemini:")
+                        for m in messages:
+                            print(m)
 
-                if not messages:
-                    raise ValueError("[GoogleRunner] Conversation format produced empty content.")
-            else:
-                turn_index = kw.get("turn_index", 1)
-                if turn_index == 1 and self._system_prompt:
-                    full_prompt = f"{self._system_prompt}\n\n{prompt}"
+                    if not messages:
+                        raise ValueError("[GoogleRunner] Conversation format produced empty content.")
                 else:
-                    full_prompt = prompt
+                    turn_index = kw.get("turn_index", 1)
+                    if turn_index == 1 and self._system_prompt:
+                        full_prompt = f"{self._system_prompt}\n\n{prompt}"
+                    else:
+                        full_prompt = prompt
 
-                if not full_prompt.strip():
-                    raise ValueError("[GoogleRunner] Refusing to send empty prompt to Gemini API.")
+                    if not full_prompt.strip():
+                        raise ValueError("[GoogleRunner] Refusing to send empty prompt to Gemini API.")
 
-                messages = [{"role": "user", "parts": [{"text": full_prompt}]}]
+                    messages = [{"role": "user", "parts": [{"text": full_prompt}]}]
 
-            response = self.model.generate_content(
-                contents=messages,
-                generation_config=gtypes.GenerationConfig(
-                    temperature=kw.get("temperature", 0.7),
-                    top_p=kw.get("top_p", 0.95),
-                    max_output_tokens=kw.get("max_tokens", 512),
-                ),
-            )
+                response = self.model.generate_content(
+                    contents=messages,
+                    generation_config=gtypes.GenerationConfig(
+                        temperature=kw.get("temperature", 0.7),
+                        top_p=kw.get("top_p", 0.95),
+                        max_output_tokens=kw.get("max_tokens", 512),
+                    ),
+                )
 
-            self.last_response = response
+                self.last_response = response
 
-            if hasattr(response, "text"):
-                output_text = response.text.strip()
-            elif hasattr(response, "candidates"):
-                output_text = response.candidates[0].content.parts[0].text.strip()
-            else:
-                output_text = "[GeminiRunner] No valid text response returned."
+                if hasattr(response, "text"):
+                    output_text = response.text.strip()
+                elif hasattr(response, "candidates"):
+                    output_text = response.candidates[0].content.parts[0].text.strip()
+                else:
+                    output_text = "[GeminiRunner] No valid text response returned."
 
-            usage = None
-            if hasattr(response, 'usage_metadata') and response.usage_metadata:
-                usage = {
-                    "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", None),
-                    "completion_tokens": getattr(response.usage_metadata, "candidates_token_count", None),
-                    "total_tokens": getattr(response.usage_metadata, "total_token_count", None)
+                usage = None
+                if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                    usage = {
+                        "prompt_tokens": getattr(response.usage_metadata, "prompt_token_count", None),
+                        "completion_tokens": getattr(response.usage_metadata, "candidates_token_count", None),
+                        "total_tokens": getattr(response.usage_metadata, "total_token_count", None)
+                    }
+                return {
+                    "model_output": output_text,
+                    "model_name": self.model.model_name,
+                    "usage": usage,
+                    "raw_response": response
                 }
-            return {
-                "model_output": output_text,
-                "model_name": self.model.model_name,
-                "usage": usage,
-                "raw_response": response
-            }
-
-        except Exception as e:
-            import traceback
-            print(f"[GoogleRunner] request failed: {e}")
-            traceback.print_exc()
-            return {
-                "model_output": f"[ERROR] {e}",
-                "model_name": self.model.model_name,
-                "usage": None,
-                "raw_response": None
-            }
+            except Exception as e:
+                err_str = str(e)
+                if ("429" in err_str or "rate limit" in err_str.lower()) and attempt < max_retries:
+                    print(f"[GoogleRunner] Rate limit hit, retrying in {backoff}s (attempt {attempt}/{max_retries})...")
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+                import traceback
+                print(f"[GoogleRunner] request failed: {e}")
+                traceback.print_exc()
+                return {
+                    "model_output": f"[ERROR] {e}",
+                    "model_name": self.model.model_name,
+                    "usage": None,
+                    "raw_response": None
+                }
 
 # ---------------------------------------------------------------------
 # ConversationHistory for Gemini and other runners

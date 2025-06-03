@@ -5,6 +5,7 @@ from typing import Dict, Any
 
 import tiktoken
 from openai import OpenAI
+import time
 
 # ---- CONFIG IMPORT ----
 try:
@@ -39,35 +40,42 @@ class OpenAIRunner:
             messages.append({"role": "system", "content": self._system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=messages,
-                **self._build_kwargs(kwds),
-            )
-            self.last_response = response
-            output = response.choices[0].message.content.strip()
-            usage = {
-                "prompt_tokens": response.usage.prompt_tokens,
-                "completion_tokens": response.usage.completion_tokens,
-                "total_tokens": response.usage.total_tokens
-            } if hasattr(response, "usage") else None
-
-            return {
-                "model_output": output,
-                "model_name": self.model_name,
-                "usage": usage,
-                "raw_response": response
-            }
-
-        except Exception as e:
-            print(f"[OpenAIRunner] request failed: {e}")
-            return {
-                "model_output": f"[ERROR] {e}",
-                "model_name": self.model_name,
-                "usage": None,
-                "raw_response": None
-            }
+        max_retries = 5
+        backoff = 1
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=messages,
+                    **self._build_kwargs(kwds),
+                )
+                self.last_response = response
+                output = response.choices[0].message.content.strip()
+                usage = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens
+                } if hasattr(response, "usage") else None
+                return {
+                    "model_output": output,
+                    "model_name": self.model_name,
+                    "usage": usage,
+                    "raw_response": response
+                }
+            except Exception as e:
+                err_str = str(e)
+                if ("429" in err_str or "rate limit" in err_str.lower()) and attempt < max_retries:
+                    print(f"[OpenAIRunner] Rate limit hit, retrying in {backoff}s (attempt {attempt}/{max_retries})...")
+                    time.sleep(backoff)
+                    backoff *= 2
+                    continue
+                print(f"[OpenAIRunner] request failed: {e}")
+                return {
+                    "model_output": f"[ERROR] {e}",
+                    "model_name": self.model_name,
+                    "usage": None,
+                    "raw_response": None
+                }
 
     def count_tokens(self, text: str) -> int:
         try:
