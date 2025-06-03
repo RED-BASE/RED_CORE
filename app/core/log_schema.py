@@ -11,9 +11,7 @@ class Turn(BaseModel):
     user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
     model_output: str  # The LLM's full response
     persona: str  # Active persona used (e.g. "malicious_actor", "none")
-    system_prompt_tag: str  # ID of the system prompt in use (e.g. "sys_guardrail_decay_01:latest")
     meta: Optional[Dict[str, Any]] = {}  # Variant ID, headers, or any injected metadata
-    system_prompt_text: Optional[str] = None  # Full text of system prompt used (captured here for auditability)
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
     containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
     drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
