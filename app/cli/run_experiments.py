@@ -294,10 +294,16 @@ def main():
             with lock:
                 turn_counter += 1
                 words = model_output.split()
+                prefix = f"Turn {turn_counter}/{total_turns}: "
+                max_line_length = 100
                 for word in words:
-                    print(f"Turn {turn_counter}/{total_turns}: {model_turn_index} {model_name} | {word}   ", end="\r", flush=True)
+                    flash = word[:8]  # limit flashed word to 8 characters
+                    line = f"{prefix}{flash}   {model_name} {model_turn_index}"
+                    print(line.ljust(max_line_length), end="\r", flush=True)
                     time.sleep(0.05)
-                # Leave the last word visible until the next turn completes
+                # Leave the last word visible, padded
+                last_flash = words[-1][:8] if words else ''
+                print(f"{prefix}{last_flash}   {model_name} {model_turn_index}".ljust(max_line_length), end="\r", flush=True)
 
         successes = []
         failures = []
