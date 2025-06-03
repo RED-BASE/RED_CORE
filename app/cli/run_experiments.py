@@ -12,6 +12,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
 import shlex
+from tqdm import tqdm
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -270,9 +271,12 @@ def main():
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
             futures = {executor.submit(run_one, m): m for m in args.models}
-            for future in as_completed(futures):
-                _ = future.result()
-                print(f"✅ {futures[future]} finished successfully")
+            with tqdm(total=len(args.models), desc="Model runs", unit="model") as pbar:
+                for future in as_completed(futures):
+                    _ = future.result()
+                    pbar.set_postfix_str(f"Finished: {futures[future]}")
+                    pbar.update(1)
+                    print(f"✅ {futures[future]} finished successfully")
 
 if __name__ == "__main__":
     main()
