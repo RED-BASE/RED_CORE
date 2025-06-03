@@ -30,7 +30,7 @@ MODEL_REGISTRY = {
         "features": ["text"],
     },
     "claude-3-7-sonnet-20250219": {
-        "aliases": ["claude-3-7-sonnet", "claude-3-7-sonnet-20250219"],
+        "aliases": ["claude-3-7-sonnet", "claude-3-7-sonnet-20250219","claude"],
         "code": "C37S",
         "vendor": "anthropic",
         "features": ["text"],
