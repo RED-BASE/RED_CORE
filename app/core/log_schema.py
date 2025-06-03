@@ -53,6 +53,11 @@ class SessionLog(BaseModel):
     python_version: Optional[str] = None  # Python version used to run the script
     log_hash: Optional[str] = None  # Unique hash for this log file
     red_core_version: Optional[str] = None  # RED_CORE codebase version
+    created_at: Optional[str] = None  # ISO timestamp of log creation
+    status: Optional[str] = "complete"  # Log status in workflow
+    tags: Optional[List[str]] = []  # Custom tags for grouping/filtering
+    provenance: Optional[List[Dict[str, Any]]] = []  # History of major events (optional)
+    runtime: Optional[str] = None  # OS/platform info
 
     class Config:
         validate_assignment = True  # Re-validate every assignment

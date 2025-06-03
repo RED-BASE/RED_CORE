@@ -7,7 +7,7 @@ import shutil
 import yaml
 import hashlib
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
@@ -15,6 +15,7 @@ import shlex
 from tqdm import tqdm
 import threading
 import copy
+import platform
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -158,6 +159,11 @@ def run_exploit_yaml(
         sdk_version=openai.__version__,
         python_version=sys.version,
         red_core_version=get_red_core_version(),
+        created_at=datetime.now().isoformat(),
+        status="complete",
+        tags=[],
+        provenance=[],
+        runtime=platform.platform(),
     )
 
     variants = exploit_data.get("variants", [])
