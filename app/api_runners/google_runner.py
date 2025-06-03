@@ -7,6 +7,8 @@ import google.generativeai as genai
 from google.generativeai import types as gtypes
 import time
 
+from app.core.context import ConversationHistory
+
 # --- CONFIG IMPORT ---
 try:
     from app.config import GOOGLE_API_KEY, MODEL_ALIASES
@@ -53,7 +55,7 @@ class GoogleRunner:
                     if os.getenv("DEBUG_GEMINI", "false").lower() == "true":
                         print("\n🚨 Gemini Debug — Raw Conversation.turns:")
                         for t in conversation.turns:
-                            print(f"  - role: {t['role']}, content: {repr(t['content'])}")
+                            print(f"  - role: {t.role}, content: {repr(t.content)}")
 
                     messages = conversation.to_gemini_format()
 
@@ -124,32 +126,3 @@ class GoogleRunner:
                     "raw_response": None
                 }
 
-# ---------------------------------------------------------------------
-# ConversationHistory for Gemini and other runners
-# ---------------------------------------------------------------------
-
-class ConversationHistory:
-    def __init__(self, system_prompt=""):
-        self.turns = []
-        self.system_prompt = system_prompt.strip()
-
-    def append_user(self, msg):
-        self.turns.append({"role": "user", "content": msg.strip()})
-
-    def append_assistant(self, msg):
-        self.turns.append({"role": "model", "content": msg.strip()})
-
-    def to_gemini_format(self):
-        messages = []
-        for idx, turn in enumerate(self.turns):
-            role = turn["role"]
-            content = turn["content"].strip()
-            if not content or role not in {"user", "model"}:
-                continue
-            if idx == 0 and self.system_prompt:
-                content = f"{self.system_prompt}\n\n{content}"
-            messages.append({
-                "role": role,
-                "parts": [{"text": content}],
-            })
-        return messages
