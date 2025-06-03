@@ -11,6 +11,7 @@ from datetime import date
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import openai
+import shlex
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -77,6 +78,7 @@ def run_exploit_yaml(
     experiment_id: Optional[str] = None,
     scenario_hash: Optional[str] = None,
     score_log: bool = False,
+    run_command: Optional[str] = None,
 ) -> dict:
     canonical_model_name = resolve_model(model_name)
     model_code = get_model_code(canonical_model_name)
@@ -136,7 +138,8 @@ def run_exploit_yaml(
             persona_name
         ),
         turns=[],
-        evaluator_version="unknown"
+        evaluator_version="unknown",
+        run_command=run_command
     )
 
     for variant in exploit_data.get("variants", []):
@@ -246,6 +249,9 @@ def main():
             print("⚠️  Containment disabled")
         print("")
 
+        # Capture the command used to run the script
+        run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
+
         def run_one(model):
             return run_exploit_yaml(
                 yaml_path=str(usr_prompt_path),
@@ -259,6 +265,7 @@ def main():
                 experiment_id=args.experiment_id,
                 scenario_hash=args.scenario_hash,
                 score_log=args.score_log,
+                run_command=run_command_str,
             )
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
