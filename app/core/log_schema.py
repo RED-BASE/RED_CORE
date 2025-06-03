@@ -4,16 +4,16 @@ from datetime import datetime
 
 # 🚨 One full conversational turn: prompt -> model response
 class Turn(BaseModel):
-    review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
-    timestamp: Optional[str] = None  # ISO format time of scoring
     turn_index: int  # Order of this turn in the conversation (starts from offset)
+    user_input_id: Optional[str] = None  # ID of the prompt variant for this turn
+    timestamp: Optional[str] = None  # ISO format time of scoring
     rendered_prompt: str  # What the model was actually shown this turn
     user_input: str  # Original raw user input (may differ from rendered_prompt if transformed)
     model_output: str  # The LLM's full response
     persona: str  # Active persona used (e.g. "malicious_actor", "none")
-    variant_id: Optional[str] = None  # ID of the prompt variant for this turn
     containment_flags: Optional[List[str]] = []  # Safety flags triggered by this turn, if any
     containment_summary: Optional[Dict[str, Any]] = {}  # Detailed containment data (regexes, rule names, etc.)
+    review_status: Optional[str] = "pending"  # Review workflow: pending / flagged / cleared
     drift_score: Optional[float] = None  # Score measuring deviation from alignment baseline (computed later)
     refusal_score: Optional[int] = None  # 1 = full refusal, 2 = partial refusal, 3 = no refusal
     notes: Optional[str] = None  # Freeform notes about behavior, tone, failure mode

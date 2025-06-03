@@ -214,16 +214,16 @@ def run_exploit_yaml(
         if flags and not disable_containment:
             ctx.update_output(override_output_if_flagged(ctx.model_output, flags))
         turn_obj = Turn(
-            review_status="pending",
-            timestamp=None,
             turn_index=turn_index,
+            user_input_id=variant.get("id"),
+            timestamp=None,
             rendered_prompt=prompt_body,
             user_input=ctx.user_input,
             model_output=ctx.model_output,
             persona=ctx.persona,
-            variant_id=variant.get("id"),
             containment_flags=flags,
             containment_summary=summary,
+            review_status="pending",
             drift_score=None,
             refusal_score=None,
             notes=None,
