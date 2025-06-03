@@ -1,0 +1,75 @@
+Run state: FAILED
+Timestamp: 2025-06-03T02:59:08.236312
+Command: PYTHONPATH=. app/cli/run_experiments.py run --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro --sys-prompt data/prompts/system/sys_guardrail_decay_01.yaml --usr-prompt data/prompts/user/guardrail_decay/usr_guardrail_decay_01.yaml
+Failed models: gpt-4o, claude-3-7-sonnet-20250219, gemini-pro
+
+--- Tracebacks ---
+
+Model: gpt-4o
+Error: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=687, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 319, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 214, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=687, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+
+Model: claude-3-7-sonnet-20250219
+Error: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=802, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 319, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 214, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=802, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
+
+Model: gemini-pro
+Error: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=654, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Traceback:
+Traceback (most recent call last):
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 319, in run_one
+    result = run_exploit_yaml(
+             ^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 214, in run_exploit_yaml
+    turn_obj = Turn(
+               ^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Turn
+token_count
+  Extra inputs are not permitted [type=extra_forbidden, input_value=654, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+
+----------------------------------------
