@@ -45,15 +45,16 @@ class OpenAIRunner:
         Parameters
         ----------
         prompt : str
-            The raw user prompt to send when no conversation history is provided.
-        conversation : ConversationHistory | None
-            Optional conversation history used to build the message payload.
+            The message text to send when no conversation history exists.
+        conversation : ConversationHistory | None, optional
+            Prior conversation turns used to construct the message payload.
 
         Returns
         -------
         dict
-            Dictionary containing ``model_output``, ``model_name``, ``usage``,
-            and ``raw_response``.
+            Mapping with keys ``model_output`` (the assistant reply),
+            ``model_name`` (the model identifier), ``usage`` (token counts or
+            ``None``) and ``raw_response`` (the raw OpenAI response object).
         """
         if conversation is not None:
             messages = conversation.to_openai_format()
