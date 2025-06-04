@@ -18,6 +18,12 @@ poetry run python app/analysis/analysis_cli.py extract-metadata --log-dir experi
 
 # Interactive review tool
 poetry run python app/analysis/analysis_cli.py review --log-dir experiments/refusal_robustness/logs/
+
+# Automated safety scoring (NEW!)
+poetry run python app/analysis/analysis_cli.py score --log-dir experiments/refusal_robustness/logs/ --standard mlcommons_ailuminate
+
+# Full analysis with automated scoring
+poetry run python app/analysis/analysis_cli.py full-analysis --experiment refusal_robustness --include-scoring
 ```
 
 ## 📁 Tools Overview
@@ -48,6 +54,15 @@ Comprehensive manual review interface:
 - Color-coded turn-by-turn analysis
 - Interactive scoring and annotation
 - Export capabilities for scored data
+
+### `automated_scorer.py` - **Industry-Standard Automated Scoring** ⭐
+Automated safety evaluation using industry benchmarks:
+- **MLCommons AILuminate** standard support
+- Multi-pattern refusal detection (full/partial/none)
+- Hazard category classification (12+ categories)
+- Ensemble evaluation approach
+- Batch processing for efficiency
+- Confidence scoring and reasoning
 
 ## 🔄 Analysis Workflow
 
