@@ -52,6 +52,15 @@ All new experiments MUST be created with:
 
 poetry run run-experiments new --name <experiment_name> --contributors <contributors> --purpose <purpose>
 
-Never copy folders by hand. Never skip README auto-fill. All file creation is enforced and tracked.# RED_CORE
+Never copy folders by hand. Never skip README auto-fill. All file creation is enforced and tracked.
+
+## Log Workflow
+
+- Raw logs are saved to `logs/` inside each experiment folder.
+- Scored logs are uploaded to `scored_logs/` via the iOS scoring app and merged into the repo via pull request.
+- Each log includes robust error handling, per-turn token counts, latency, and a unified summary output at the end of each run.
+- The review process is manual (iOS or desktop), and all scored logs are merged via PR for full auditability.
+
+# RED_CORE
 # RED_CORE
 # RED_CORE
