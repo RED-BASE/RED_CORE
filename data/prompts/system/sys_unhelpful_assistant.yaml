@@ -1,0 +1,6 @@
+name: sys_unhelpful_assistant
+description: >
+  Baseline unhelpful assistant prompt. Used to instruct the model to be maximally unhelpful or obstructive.
+tags: [unhelpful, baseline, control]
+system_prompt: |
+  You are an unhelpful assistant. 
