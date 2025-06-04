@@ -87,39 +87,71 @@ def run_enhanced_review(log_dir: str):
     return True
 
 
-def full_analysis_pipeline(experiment_name: str):
+def run_automated_scoring(log_dir: str, output_file: str = None, standard: str = "red_core_custom", single_file: str = None):
+    """Run automated safety scoring."""
+    logger.info(f"Running automated scoring with {standard} standard...")
+    
+    cmd = [
+        sys.executable,
+        "app/analysis/automated_scorer.py",
+        "--log-dir", log_dir
+    ]
+    
+    if output_file:
+        cmd.extend(["--output", output_file])
+    if single_file:
+        cmd.extend(["--single-file", single_file])
+    
+    try:
+        subprocess.run(cmd, check=True, cwd=Path.cwd())
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Automated scoring failed: {e}")
+        return False
+    return True
+
+
+def full_analysis_pipeline(experiment_name: str, include_scoring: bool = False, scoring_standard: str = "red_core_custom"):
     """Run complete analysis pipeline for an experiment."""
     logger.info(f"Running full analysis pipeline for experiment: {experiment_name}")
     
     log_dir = f"experiments/{experiment_name}/logs/"
     flat_file = f"data/flattened/{experiment_name}_flat_logs.csv" 
     rolled_file = f"data/rolled/{experiment_name}_rolled_logs.csv"
+    score_file = f"data/scored/{experiment_name}_automated_scores.json"
     
     # Ensure directories exist
     Path("data/flattened").mkdir(exist_ok=True)
     Path("data/rolled").mkdir(exist_ok=True)
+    Path("data/scored").mkdir(exist_ok=True)
     
     # Step 1: Extract metadata
     if not extract_metadata(log_dir):
         return False
     
-    # Step 2: Roll up data (if flat file exists)
+    # Step 2: Automated scoring (if requested)
+    if include_scoring:
+        if not run_automated_scoring(log_dir, score_file, scoring_standard):
+            logger.warning("Automated scoring failed, continuing without it")
+    
+    # Step 3: Roll up data (if flat file exists)
     if Path(flat_file).exists():
         if not roll_up_data(flat_file, rolled_file):
             logger.warning("Data rollup failed, continuing without it")
     else:
         logger.warning(f"Flat file {flat_file} not found, skipping rollup")
     
-    # Step 3: Quick insights
+    # Step 4: Quick insights
     if not run_quick_insights():
         logger.warning("Quick insights failed, continuing")
     
-    # Step 4: Enhanced review
+    # Step 5: Enhanced review
     if not run_enhanced_review(log_dir):
         logger.warning("Enhanced review failed")
         return False
     
     logger.info(f"Full analysis pipeline completed for {experiment_name}")
+    if include_scoring:
+        logger.info(f"Automated scoring results saved to {score_file}")
     return True
 
 
@@ -156,9 +188,19 @@ Examples:
     review_parser = subparsers.add_parser('review', help='Run enhanced review tool')
     review_parser.add_argument('--log-dir', required=True, help='Directory containing log files')
     
+    # Automated scoring
+    score_parser = subparsers.add_parser('score', help='Run automated safety scoring')
+    score_parser.add_argument('--log-dir', required=True, help='Directory containing log files')
+    score_parser.add_argument('--output', help='Output file for scoring results')
+    score_parser.add_argument('--standard', default='red_core_custom', 
+                             help='Scoring standard (mlcommons_ailuminate, red_core_custom)')
+    score_parser.add_argument('--single-file', help='Score a single log file')
+    
     # Full analysis
     full_parser = subparsers.add_parser('full-analysis', help='Run complete analysis pipeline')
     full_parser.add_argument('--experiment', required=True, help='Experiment name')
+    full_parser.add_argument('--include-scoring', action='store_true', help='Include automated scoring')
+    full_parser.add_argument('--scoring-standard', default='red_core_custom', help='Scoring standard to use')
     
     args = parser.parse_args()
     
@@ -176,8 +218,10 @@ Examples:
         success = roll_up_data(args.input, args.output)
     elif args.command == 'review':
         success = run_enhanced_review(args.log_dir)
+    elif args.command == 'score':
+        success = run_automated_scoring(args.log_dir, args.output, args.standard, args.single_file)
     elif args.command == 'full-analysis':
-        success = full_analysis_pipeline(args.experiment)
+        success = full_analysis_pipeline(args.experiment, args.include_scoring, args.scoring_standard)
     
     sys.exit(0 if success else 1)
 
