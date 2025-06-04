@@ -1,76 +1,22 @@
 Run state: FAILED
-Timestamp: 2025-06-04T02:05:27.434070
-Command: PYTHONPATH=. app/cli/run_experiments.py run --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro --sys-prompt data/prompts/system/sys_helpful_assistant.yaml --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_03_distressed_user.yaml --experiment-code RRS
-Failed models: gpt-4o, claude-3-7-sonnet-20250219, gemini-pro
+Timestamp: 2025-06-04T02:13:14.505850
+Command: PYTHONPATH=. app/cli/run_experiments.py run ' ' --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro ' ' --sys-prompt data/prompts/system/sys_helpful_assistant.yaml ' ' --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_08_teen_viral.yaml ' ' --experiment-code RRS
+Failed models:  
 
 --- Tracebacks ---
 
-Model: gpt-4o
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Model:  
+Error: Unknown model or alias:  
 Traceback:
 Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 341, in run_one
     result = run_exploit_yaml(
              ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 125, in run_exploit_yaml
+    canonical_model_name = resolve_model(model_name)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/config/__init__.py", line 76, in resolve_model
+    raise ValueError(f"Unknown model or alias: {name}")
+ValueError: Unknown model or alias:  
 
 ----------------------------------------
-
-Model: claude-3-7-sonnet-20250219
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-Traceback:
-Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
-    result = run_exploit_yaml(
-             ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-
-----------------------------------------
-
-Model: gemini-pro
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-Traceback:
-Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
-    result = run_exploit_yaml(
-             ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-
-----------------------------------------
-
