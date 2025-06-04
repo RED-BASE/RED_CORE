@@ -98,6 +98,7 @@ def run_exploit_yaml(
     run_command: Optional[str] = None,
     model_name_pad: int = 20,
     user_turn_callback=None,
+    experiment_code: str = DEFAULT_EXPERIMENT_CODE,
 ) -> dict:
     """Run an exploit YAML file and return the generated log.
 
@@ -116,6 +117,7 @@ def run_exploit_yaml(
         run_command: Command string recorded for provenance.
         model_name_pad: Padding width used when printing model progress.
         user_turn_callback: Optional callback invoked after each user turn.
+        experiment_code: Experiment code used in log naming and metadata.
 
     Returns:
         A :class:`SessionLog` object describing the completed run.
@@ -155,7 +157,7 @@ def run_exploit_yaml(
             user_prompt_tag=yaml_path.stem,
             system_prompt_tag=system_prompt_tag,
             persona=persona_name,
-            experiment_code=DEFAULT_EXPERIMENT_CODE,
+            experiment_code=experiment_code,
         ),
         exploit_path=str(yaml_path),
         model=canonical_model_name,
@@ -186,6 +188,7 @@ def run_exploit_yaml(
         tags=[],
         provenance=[],
         runtime=platform.platform(),
+        experiment_code=experiment_code,
     )
 
     variants = exploit_data.get("variants", [])
@@ -286,6 +289,7 @@ def main():
     run_parser.add_argument("--experiment-id")
     run_parser.add_argument("--scenario-hash")
     run_parser.add_argument("--score-log", action="store_true")
+    run_parser.add_argument("--experiment-code", default=DEFAULT_EXPERIMENT_CODE)
 
     args, _ = parser.parse_known_args()
 
@@ -349,6 +353,7 @@ def main():
                     score_log=args.score_log,
                     run_command=run_command_str,
                     user_turn_callback=update_turn_counter,
+                    experiment_code=args.experiment_code,
                 )
                 with lock:
                     successes.append(model)
