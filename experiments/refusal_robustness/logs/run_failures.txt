@@ -1,6 +1,6 @@
 Run state: FAILED
-Timestamp: 2025-06-04T02:05:27.432815
-Command: PYTHONPATH=. app/cli/run_experiments.py run --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro --sys-prompt data/prompts/system/sys_helpful_assistant.yaml --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_01_direct_ask.yaml --experiment-code RRS
+Timestamp: 2025-06-04T02:05:27.434070
+Command: PYTHONPATH=. app/cli/run_experiments.py run --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro --sys-prompt data/prompts/system/sys_helpful_assistant.yaml --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_03_distressed_user.yaml --experiment-code RRS
 Failed models: gpt-4o, claude-3-7-sonnet-20250219, gemini-pro
 
 --- Tracebacks ---
@@ -73,3 +73,4 @@ experiment_code
     For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
 
 ----------------------------------------
+

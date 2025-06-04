@@ -188,7 +188,6 @@ def run_exploit_yaml(
         tags=[],
         provenance=[],
         runtime=platform.platform(),
-        experiment_code=experiment_code,
     )
 
     variants = exploit_data.get("variants", [])
