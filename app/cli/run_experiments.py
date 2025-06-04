@@ -21,6 +21,7 @@ import time
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
 from app.core.hash_utils import hash_string
+from app.core.logger import get_experiment_logger
 from app.config import (
     LOG_DIR,
     DEFAULT_TEMPERATURE,
