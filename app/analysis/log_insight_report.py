@@ -51,7 +51,8 @@ print(anomalies[['isbn_run_id','turn_index','drift_score','drift_notes']])
 print("\n==== RUNS WITH THE MOST UNIQUE DRIFT NOTES ====")
 def parse_notes(x):
     try:
-        return set(eval(x)) if isinstance(x, str) and x.startswith('[') else set()
+        import ast
+        return set(ast.literal_eval(x)) if isinstance(x, str) and x.startswith('[') else set()
     except Exception:
         return set()
 note_counts = df.groupby('isbn_run_id')['drift_notes'].apply(lambda notes: len(set.union(*(parse_notes(n) for n in notes))))
