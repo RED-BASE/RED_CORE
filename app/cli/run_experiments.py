@@ -196,7 +196,7 @@ def run_exploit_yaml(
             "temperature": temperature,
             "turn_index": turn_index,
         }
-        if model_vendor == "google":
+        if model_vendor in {"google", "openai"}:
             generate_kwargs["conversation"] = history
         start_time = time.time()
         result = runner.generate(prompt_body, **generate_kwargs)
