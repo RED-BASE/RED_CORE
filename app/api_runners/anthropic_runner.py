@@ -1,6 +1,7 @@
 import os
-from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 import time
+from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
+from app.core.context import ConversationHistory
 
 # --- CONFIG IMPORT ---
 try:
@@ -26,7 +27,27 @@ class AnthropicRunner:
     def get_model_name(self):
         return self.model_name
 
-    def generate(self, prompt: str, **kwds) -> dict:
+    def generate(
+        self,
+        prompt: str,
+        conversation: ConversationHistory | None = None,
+        **kwds,
+    ) -> dict:
+        """Generate a completion from Anthropic models.
+
+        Parameters
+        ----------
+        prompt : str
+            Text of the user request when no ``conversation`` is supplied.
+        conversation : ConversationHistory | None, optional
+            Prior turns that already include the latest user input.
+
+        Returns
+        -------
+        dict
+            Mapping with keys ``model_output``, ``model_name``, ``usage`` and
+            ``raw_response``.
+        """
         max_retries = 5
         backoff = 1
         for attempt in range(1, max_retries + 1):
@@ -37,10 +58,17 @@ class AnthropicRunner:
 
                 # Claude 3 API
                 if self.model_name.startswith("claude-3-"):
-                    messages = [{"role": "user", "content": prompt}]
+                    if conversation is not None:
+                        conv = conversation.to_claude_format()
+                        system_prompt = conv["system"] or None
+                        messages = conv["messages"]
+                    else:
+                        system_prompt = self._system_prompt or None
+                        messages = [{"role": "user", "content": prompt}]
+
                     response = self.client.messages.create(
                         model=self.model_name,
-                        system=self._system_prompt or None,
+                        system=system_prompt,
                         messages=messages,
                         temperature=temp,
                         top_p=top_p,
@@ -62,8 +90,19 @@ class AnthropicRunner:
 
                 # Legacy Claude (2.x, 1.x)
                 else:
-                    system = f"{self._system_prompt}\n\n" if self._system_prompt else ""
-                    claude_prompt = f"{system}{HUMAN_PROMPT} {prompt}\n\n{AI_PROMPT}"
+                    if conversation is not None:
+                        conv = conversation.to_claude_format()
+                        system = f"{conv['system']}\n\n" if conv['system'] else ""
+                        prompt_parts = []
+                        for turn in conv['messages']:
+                            if turn['role'] == 'user':
+                                prompt_parts.append(f"{HUMAN_PROMPT} {turn['content']}")
+                            else:
+                                prompt_parts.append(f"{AI_PROMPT} {turn['content']}")
+                        claude_prompt = system + "\n\n".join(prompt_parts) + f"\n\n{AI_PROMPT}"
+                    else:
+                        system = f"{self._system_prompt}\n\n" if self._system_prompt else ""
+                        claude_prompt = f"{system}{HUMAN_PROMPT} {prompt}\n\n{AI_PROMPT}"
                     response = self.client.completions.create(
                         model=self.model_name,
                         prompt=claude_prompt,
