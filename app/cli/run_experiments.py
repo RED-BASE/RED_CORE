@@ -22,6 +22,11 @@ from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from rich.panel import Panel
 from rich.columns import Columns
+from rich.live import Live
+from rich.text import Text
+import sys
+import termios
+import tty
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -436,8 +441,25 @@ def main():
         return
 
     elif args.command == "run" or args.command is None:
-        sys_prompt_path = Path(args.sys_prompt)
-        usr_prompt_path = Path(args.usr_prompt)
+        # Check if we need interactive mode
+        if args.interactive or not args.sys_prompt or not args.usr_prompt:
+            config = configure_experiment_interactively()
+            if not config:
+                return
+            
+            # Override args with interactive config
+            args.models = config['models']
+            args.temperature = config['temperature']
+            args.repetitions = config['repetitions']
+            args.disable_containment = config['disable_containment']
+            
+            # For now, just use the first prompts (we'll extend this later for full batch support)
+            sys_prompt_path = Path(config['sys_prompts'][0])
+            usr_prompt_path = Path(config['usr_prompts'][0])
+        else:
+            sys_prompt_path = Path(args.sys_prompt)
+            usr_prompt_path = Path(args.usr_prompt)
+            
         print("")
         print("⚙ BATCH CONFIG")
         print("")
