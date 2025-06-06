@@ -111,6 +111,80 @@ def get_available_personas():
         return ["none"] + sorted(personas)
     return ["none"]
 
+def select_from_list(console, title, options, allow_multiple=False):
+    """Interactive selection with arrow keys."""
+    if not options:
+        console.print(f"[red]No {title.lower()} available[/red]")
+        return None
+    
+    selected_index = 0
+    selected_items = set() if allow_multiple else None
+    
+    def render_menu():
+        lines = [f"[bold cyan]{title}[/bold cyan]", ""]
+        for i, option in enumerate(options):
+            prefix = "→ " if i == selected_index else "  "
+            if allow_multiple:
+                checkbox = "☑ " if option in selected_items else "☐ "
+                style = "bold green" if option in selected_items else "white"
+                lines.append(f"{prefix}{checkbox}[{style}]{option}[/{style}]")
+            else:
+                style = "bold green" if i == selected_index else "white"
+                lines.append(f"{prefix}[{style}]{option}[/{style}]")
+        
+        if allow_multiple:
+            lines.append("")
+            lines.append("[dim]Space: toggle, Enter: confirm, Esc: cancel[/dim]")
+        else:
+            lines.append("")
+            lines.append("[dim]Enter: select, Esc: cancel[/dim]")
+        
+        return "\\n".join(lines)
+    
+    def get_key():
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            key = sys.stdin.read(1)
+            if key == '\\x1b':  # ESC sequence
+                key += sys.stdin.read(2)
+            return key
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    
+    with Live(render_menu(), console=console, refresh_per_second=30) as live:
+        while True:
+            key = get_key()
+            
+            if key == '\\x1b[A':  # Up arrow
+                selected_index = (selected_index - 1) % len(options)
+            elif key == '\\x1b[B':  # Down arrow
+                selected_index = (selected_index + 1) % len(options)
+            elif key == ' ' and allow_multiple:  # Space for multi-select
+                option = options[selected_index]
+                if option in selected_items:
+                    selected_items.remove(option)
+                else:
+                    selected_items.add(option)
+            elif key == '\\r' or key == '\\n':  # Enter
+                if allow_multiple:
+                    return list(selected_items)
+                else:
+                    return options[selected_index]
+            elif key == '\\x1b':  # Escape
+                return None
+            
+            live.update(render_menu())
+
+def prompt_for_text(console, prompt, required=True):
+    """Simple text input prompt."""
+    while True:
+        value = Prompt.ask(prompt)
+        if not required or value.strip():
+            return value.strip()
+        console.print("[red]This field is required[/red]")
+
 def configure_experiment_interactively():
     """Interactive experiment configuration using Rich."""
     console = Console()
