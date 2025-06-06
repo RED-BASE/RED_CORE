@@ -101,7 +101,7 @@ def get_available_prompts(pattern, base_path="data/prompts"):
     """Get available prompt files matching pattern."""
     if Path(base_path).exists():
         files = list(Path(base_path).rglob(pattern))
-        return [str(f.relative_to(Path(base_path).parent)) for f in files]
+        return [str(f) for f in files]  # Keep full path
     return []
 
 def get_available_personas():
@@ -229,6 +229,7 @@ def configure_experiment_interactively():
     # Parameters
     repetitions = int(prompt_for_text(console, "Repetitions per combination"))
     temperature = float(prompt_for_text(console, "Temperature"))
+    experiment_code = prompt_for_text(console, "Experiment code (e.g., 80K, GRD)")
     disable_containment = Confirm.ask("Disable containment?")
     
     # Calculate totals
@@ -501,18 +502,19 @@ def main():
             args.repetitions = config['repetitions']
             args.disable_containment = config['disable_containment']
             
-            # For now, just use the first prompts (we'll extend this later for full batch support)
-            sys_prompt_path = Path(config['sys_prompts'][0])
-            usr_prompt_path = Path(config['usr_prompts'][0])
+            # Use all prompts from interactive config
+            sys_prompts = config['sys_prompts']
+            usr_prompts = config['usr_prompts']
         else:
-            sys_prompt_path = Path(args.sys_prompt)
-            usr_prompt_path = Path(args.usr_prompt)
+            # Command line mode - single prompts
+            sys_prompts = [args.sys_prompt]
+            usr_prompts = [args.usr_prompt]
             
         print("")
         print("⚙ BATCH CONFIG")
         print("")
-        print(f"· System prompt: {sys_prompt_path}")
-        print(f"· User prompt: {usr_prompt_path}")
+        print(f"· System prompts: {len(sys_prompts)} files")
+        print(f"· User prompts: {len(usr_prompts)} files")
         print(f"· Models: {args.models}")
         if args.disable_containment:
             print("· Warning: Containment disabled")
@@ -521,11 +523,25 @@ def main():
         # Capture the command used to run the script
         run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
 
-        # Calculate total turns across all models
-        with open(usr_prompt_path, "r") as f:
+        # Calculate total experiments and set log directory
+        personas = config.get('personas', ['none']) if args.interactive or not args.sys_prompt or not args.usr_prompt else ['none'] 
+        repetitions = config.get('repetitions', 1) if args.interactive or not args.sys_prompt or not args.usr_prompt else 1
+        experiment_folder = config.get('experiment') if args.interactive or not args.sys_prompt or not args.usr_prompt else None
+        
+        # Set log directory based on selected experiment
+        if experiment_folder:
+            log_dir_path = Path(f"experiments/{experiment_folder}/logs")
+        else:
+            log_dir_path = Path(LOG_DIR)
+        
+        total_experiments = len(sys_prompts) * len(usr_prompts) * len(args.models) * len(personas) * repetitions
+        
+        # For progress tracking, we need to know turns per experiment
+        sample_usr_prompt = Path(usr_prompts[0])
+        with open(sample_usr_prompt, "r") as f:
             user_prompt_yaml = yaml.safe_load(f)
-        num_turns_per_model = len(user_prompt_yaml.get("variants", []))
-        total_turns = num_turns_per_model * len(args.models)
+        num_turns_per_experiment = len(user_prompt_yaml.get("variants", []))
+        total_turns = total_experiments * num_turns_per_experiment
         turn_counter = 0
         lock = threading.Lock()
 
@@ -556,14 +572,13 @@ def main():
         # Start background progress display
         progress_thread = threading.Thread(target=progress_display_worker, daemon=True)
         progress_thread.start()
-        log_dir_path = Path(LOG_DIR)
         log_dir_path.mkdir(parents=True, exist_ok=True)
 
         def run_one(model):
             try:
                 result = run_exploit_yaml(
-                    yaml_path=str(usr_prompt_path),
-                    sys_prompt=str(sys_prompt_path),
+                    yaml_path=str(usr_prompts[0]),  # Quick fix: use first prompt
+                    sys_prompt=str(sys_prompts[0]),  # Quick fix: use first prompt
                     model_name=model,
                     temperature=args.temperature,
                     mode=args.mode,
