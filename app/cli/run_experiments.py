@@ -17,6 +17,11 @@ import threading
 import copy
 import platform
 import time
+from rich.console import Console
+from rich.prompt import Prompt, Confirm
+from rich.table import Table
+from rich.panel import Panel
+from rich.columns import Columns
 
 from app.core.log_schema import SessionLog, Turn
 from app.core.log_utils import log_session, generate_readable_run_id
@@ -77,6 +82,136 @@ def get_red_core_version():
         return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode().strip()
     except Exception:
         return "NO_GIT_HASH"
+
+def get_available_experiments():
+    """Get list of available experiment folders."""
+    experiment_dirs = []
+    if Path("experiments").exists():
+        for path in Path("experiments").iterdir():
+            if path.is_dir() and not path.name.startswith("."):
+                experiment_dirs.append(path.name)
+    return sorted(experiment_dirs)
+
+def get_available_prompts(pattern, base_path="data/prompts"):
+    """Get available prompt files matching pattern."""
+    if Path(base_path).exists():
+        files = list(Path(base_path).rglob(pattern))
+        return [str(f.relative_to(Path(base_path).parent)) for f in files]
+    return []
+
+def get_available_personas():
+    """Get available persona files."""
+    if Path("personas").exists():
+        personas = [f.stem for f in Path("personas").glob("*.yaml")]
+        return ["none"] + sorted(personas)
+    return ["none"]
+
+def configure_experiment_interactively():
+    """Interactive experiment configuration using Rich."""
+    console = Console()
+    
+    console.print()
+    console.print(Panel("⚙ Interactive Batch Configuration", style="bold blue"))
+    console.print()
+    
+    # Get experiment folder (optional)
+    experiments = get_available_experiments()
+    if experiments:
+        experiment_choices = ["none"] + experiments
+        experiment = Prompt.ask(
+            "Experiment folder",
+            choices=experiment_choices,
+            default="none"
+        )
+        if experiment == "none":
+            experiment = None
+    else:
+        experiment = None
+    
+    # System prompts
+    sys_prompts_options = get_available_prompts("**/sys*.yaml")
+    if sys_prompts_options:
+        console.print(f"Available system prompts: {', '.join(sys_prompts_options[:5])}..." if len(sys_prompts_options) > 5 else f"Available: {', '.join(sys_prompts_options)}")
+    
+    sys_prompts_input = Prompt.ask(
+        "System prompts (space-separated)",
+        default="data/prompts/system/sys_helpful_assistant.yaml"
+    )
+    sys_prompts = sys_prompts_input.split()
+    
+    # User prompts
+    usr_prompts_options = get_available_prompts("**/usr*.yaml")
+    if experiment:
+        # Look for experiment-specific prompts first
+        exp_prompts = get_available_prompts(f"**/*{experiment}*.yaml")
+        if exp_prompts:
+            console.print(f"Found experiment-specific prompts: {', '.join(exp_prompts[:3])}..." if len(exp_prompts) > 3 else f"Found: {', '.join(exp_prompts)}")
+            usr_prompts_options = exp_prompts + usr_prompts_options
+    
+    if usr_prompts_options:
+        console.print(f"Available user prompts: {', '.join(usr_prompts_options[:5])}..." if len(usr_prompts_options) > 5 else f"Available: {', '.join(usr_prompts_options)}")
+    
+    usr_prompts_input = Prompt.ask("User prompts (space-separated)")
+    usr_prompts = usr_prompts_input.split() if usr_prompts_input.strip() else []
+    
+    # Models
+    models_input = Prompt.ask(
+        "Models (space-separated)",
+        default="gpt-4o claude-3-7-sonnet-20250219 gemini-pro"
+    )
+    models = models_input.split()
+    
+    # Personas
+    personas_options = get_available_personas()
+    personas_input = Prompt.ask(
+        "Personas (space-separated)",
+        default="none"
+    )
+    personas = personas_input.split()
+    
+    # Parameters
+    repetitions = int(Prompt.ask("Repetitions per combination", default="1"))
+    temperature = float(Prompt.ask("Temperature", default="0.7"))
+    disable_containment = Confirm.ask("Disable containment?", default=False)
+    
+    # Calculate totals
+    total_combinations = len(sys_prompts) * len(usr_prompts) * len(models) * len(personas)
+    total_runs = total_combinations * repetitions
+    
+    # Show summary
+    console.print()
+    summary_table = Table(title="Configuration Summary", style="cyan")
+    summary_table.add_column("Setting", style="white")
+    summary_table.add_column("Value", style="green")
+    
+    summary_table.add_row("System prompts", f"{len(sys_prompts)} files")
+    summary_table.add_row("User prompts", f"{len(usr_prompts)} files")
+    summary_table.add_row("Models", f"{len(models)} models")
+    summary_table.add_row("Personas", f"{len(personas)} variations")
+    summary_table.add_row("Repetitions", str(repetitions))
+    summary_table.add_row("[bold]Total runs[/bold]", f"[bold]{total_runs}[/bold] ({len(sys_prompts)}×{len(usr_prompts)}×{len(models)}×{len(personas)}×{repetitions})")
+    
+    console.print(summary_table)
+    console.print()
+    
+    if not sys_prompts or not usr_prompts:
+        console.print("[red]⚠️ Please configure both system and user prompts[/red]")
+        return None
+    
+    if not Confirm.ask("Proceed with this configuration?", default=True):
+        console.print("[yellow]Aborted.[/yellow]")
+        return None
+    
+    return {
+        'sys_prompts': sys_prompts,
+        'usr_prompts': usr_prompts,
+        'models': models,
+        'personas': personas,
+        'repetitions': repetitions,
+        'temperature': temperature,
+        'disable_containment': disable_containment,
+        'experiment': experiment
+    }
 
 def compute_log_hash(log_dict):
     # Exclude log_hash field itself
@@ -281,8 +416,10 @@ def main():
 
     run_parser = subparsers.add_parser("run", help="Run experiment(s) with specified models and prompts.")
     run_parser.add_argument("--models", nargs="+", default=["gpt-4o", "claude-3-opus", "gemini-pro"])
-    run_parser.add_argument("--sys-prompt", required=True)
-    run_parser.add_argument("--usr-prompt", required=True)
+    run_parser.add_argument("--sys-prompt")
+    run_parser.add_argument("--usr-prompt")
+    run_parser.add_argument("--interactive", action="store_true", help="Use interactive configuration mode")
+    run_parser.add_argument("--repetitions", type=int, default=1, help="Number of repetitions per experiment combination")
     run_parser.add_argument("--temperature", type=float, default=DEFAULT_TEMPERATURE)
     run_parser.add_argument("--mode", choices=["audit", "attack"], default=DEFAULT_MODE)
     run_parser.add_argument("--persona")
