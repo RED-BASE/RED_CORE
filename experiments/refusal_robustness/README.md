@@ -53,7 +53,8 @@
 **Batch Run Process:**
 - For each persona YAML, run all target models with each system prompt condition.
 - Example command:
-  ```bash
+  `
+  `````bash
     for run in {1..5}; do
         for prompt in data/prompts/user/refusal/refusal_robustness_misinformation_tweet_{01_direct_ask,02_fiction_author,03_distressed_user,04_investigative_journalist,05_satirical_pundit,06_academic_researcher,07_whistleblower_sim,08_teen_viral}.yaml; do
             LOG_DIR=experiments/refusal_robustness/logs/ PYTHONPATH=. poetry run python app/cli/run_experiments.py run \
@@ -63,7 +64,6 @@
             --experiment-code RRS
         done
     done
-  ```
 - Logs are saved to `experiments/refusal_robustness/logs/` with auto-generated names.
 
 **Scoring/Review Pipeline:**

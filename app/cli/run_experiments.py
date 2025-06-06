@@ -197,7 +197,7 @@ def run_exploit_yaml(
     for i, variant in enumerate(variants):
         raw = variant.get("prompt", "")
         if not raw.strip():
-            print(f"⚠️ Skipping blank variant: {variant.get('id', '[no id]')}")
+            print(f"[WARNING] Skipping blank variant: {variant.get('id', '[no id]')}")
             continue
         if "\n" in raw:
             header, body = raw.split("\n", 1)
@@ -265,7 +265,7 @@ def run_exploit_yaml(
     log_output.log_hash = log_hash
     log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
     log_session(str(log_path), log_output)
-    print(f"📁 Log saved to: {log_path}")
+    print(f"[INFO] Log saved to: {log_path}")
     return log_output
 
 def main():
@@ -299,11 +299,11 @@ def main():
     elif args.command == "run" or args.command is None:
         sys_prompt_path = Path(args.sys_prompt)
         usr_prompt_path = Path(args.usr_prompt)
-        print(f"\n📂 System prompt: {sys_prompt_path}")
-        print(f"📂 User prompt:   {usr_prompt_path}")
-        print(f"🧪 Models:        {args.models}")
+        print(f"\n[CONFIG] System prompt: {sys_prompt_path}")
+        print(f"[CONFIG] User prompt:   {usr_prompt_path}")
+        print(f"[CONFIG] Models:        {args.models}")
         if args.disable_containment:
-            print("⚠️  Containment disabled")
+            print("[WARNING] Containment disabled")
         print("")
 
         # Capture the command used to run the script
@@ -317,20 +317,15 @@ def main():
         turn_counter = 0
         lock = threading.Lock()
 
+        # Initialize progress bar
+        pbar = tqdm(total=total_turns, desc="Processing turns", unit="turn")
+        
         def update_turn_counter(model_name, model_turn_index, model_output):
             nonlocal turn_counter
             with lock:
                 turn_counter += 1
-                words = model_output.split()
-                prefix = f"Turn {turn_counter}/{total_turns}: "
-                max_line_length = 100
-                for word in words:
-                    flash = word[:8]  # limit flashed word to 8 characters
-                    line = f"{prefix}{flash}"
-                    print(line.ljust(max_line_length), end="\r", flush=True)
-                    time.sleep(0.05)
-                last_flash = words[-1][:8] if words else ''
-                print(f"{prefix}{last_flash}".ljust(max_line_length), end="\r", flush=True)
+                pbar.update(1)
+                pbar.set_postfix({"model": model_name[:15], "turn": f"{model_turn_index}/{num_turns_per_model}"})
 
         successes = []
         failures = []
@@ -363,25 +358,26 @@ def main():
                 tb = traceback.format_exc()
                 with lock:
                     failures.append((model, str(e), tb))
-                print(f"[ERROR] {model}: {e}")
+                print(f"\n[ERROR] {model}: {e}")
                 return None
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
             futures = {executor.submit(run_one, m): m for m in args.models}
             for future in as_completed(futures):
                 _ = future.result()
-        print(f"{turn_counter}/{total_turns} turns complete 😎")
+        
+        pbar.close()
+        print(f"\n[SUCCESS] Completed {turn_counter}/{total_turns} turns")
 
         # Print summary
-        print("\n===============================")
-        print("🎉 RUN COMPLETE")
-        if failures:
-            print(f"☹️ {turn_counter}/{total_turns} turns complete")
-        else:
-            print(f"😎 {turn_counter}/{total_turns} turns complete")
-        print(f"📄 Logs: {len(successes)}   {'❌ Errors: ' + str(len(failures)) if failures else '✅ Errors: 0'}")
-        print(f"📁 Saved to: {log_dir_path}")
-        print("===============================")
+        print("\n" + "=" * 50)
+        print("EXPERIMENT RUN COMPLETE")
+        print("=" * 50)
+        print(f"[SUMMARY] Turns completed: {turn_counter}/{total_turns}")
+        print(f"[SUMMARY] Successful logs: {len(successes)}")
+        print(f"[SUMMARY] Failed models: {len(failures)}")
+        print(f"[SUMMARY] Output directory: {log_dir_path}")
+        print("=" * 50)
         if failures:
             from datetime import datetime
             error_log_path = log_dir_path / "run_failures.txt"
@@ -393,7 +389,7 @@ def main():
                 f.write("\n--- Tracebacks ---\n")
                 for model, err, tb in failures:
                     f.write(f"\nModel: {model}\nError: {err}\nTraceback:\n{tb}\n{'-'*40}\n")
-            print(f"❌ See run_failures.txt for details.")
+            print(f"[ERROR] Detailed failure log written to: {error_log_path}")
 
 if __name__ == "__main__":
     main()
