@@ -301,11 +301,16 @@ def main():
     elif args.command == "run" or args.command is None:
         sys_prompt_path = Path(args.sys_prompt)
         usr_prompt_path = Path(args.usr_prompt)
-        print(f"\n[CONFIG] System prompt: {sys_prompt_path}")
-        print(f"[CONFIG] User prompt:   {usr_prompt_path}")
-        print(f"[CONFIG] Models:        {args.models}")
+        print("")
+        print("╭─────────────────────────────────────────────────╮")
+        print("│                 BATCH CONFIG                    │")
+        print("╰─────────────────────────────────────────────────╯")
+        print("")
+        print(f"· System prompt: {sys_prompt_path}")
+        print(f"· User prompt: {usr_prompt_path}")
+        print(f"· Models: {args.models}")
         if args.disable_containment:
-            print("[WARNING] Containment disabled")
+            print("· Warning: Containment disabled")
         print("")
 
         # Capture the command used to run the script
@@ -321,7 +326,7 @@ def main():
 
         # Initialize progress tracking  
         # Inspired by Claude's elegant thinking indicator, dot to bloom to dot progression
-        spinner_chars = ["⠐", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✢", "⠐"]
+        spinner_chars = ["·", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✢", "·"]
         spinner_index = 0
         progress_running = True
         
@@ -339,9 +344,9 @@ def main():
             while progress_running:
                 spinner = spinner_chars[spinner_index % len(spinner_chars)]
                 error_text = f" ({len(failures)} errors)" if failures else ""
-                print(f"\r{spinner} [{turn_counter}/{total_turns}]{error_text}", end="", flush=True)
+                print(f"\r{spinner} Running... {turn_counter}/{total_turns}{error_text}", end="", flush=True)
                 spinner_index += 1
-                time.sleep(0.12)  # Update every 120ms for faster breathing
+                time.sleep(0.18)  # Update every 180ms for more zen breathing
         
         # Start background progress display
         progress_thread = threading.Thread(target=progress_display_worker, daemon=True)
@@ -394,12 +399,14 @@ def main():
         time.sleep(0.6)  # Let the last update finish
         print("\r" + " " * 80 + "\r", end="")
 
-        # Print clean summary
-        print("\n" + "=" * 50)
-        print("EXPERIMENT RUN COMPLETE")
-        print("=" * 50)
-        print(f"[SUMMARY] Runs completed: {turn_counter}/{total_turns} ({turn_counter/total_turns*100:.0f}%)")
-        print(f"[SUMMARY] Output directory: {log_dir_path}")
+        # Print elegant summary
+        print("")
+        print("╭─────────────────────────────────────────────────╮")
+        print("│                  BATCH COMPLETE                 │")
+        print("╰─────────────────────────────────────────────────╯")
+        print("")
+        print(f"· Runs completed: {turn_counter}/{total_turns} ({turn_counter/total_turns*100:.0f}%)")
+        print(f"· Output directory: {log_dir_path}")
         
         # Show systematic issues if any
         systematic_issues = []
@@ -408,9 +415,9 @@ def main():
                 systematic_issues.append(f"{model} (all runs failed)")
         
         if systematic_issues:
-            print(f"[SUMMARY] Systematic issues: {', '.join(systematic_issues)}")
+            print(f"· Systematic issues: {', '.join(systematic_issues)}")
         
-        print("=" * 50)
+        print("")
         if failures:
             from datetime import datetime
             error_log_path = log_dir_path / "run_failures.txt"
