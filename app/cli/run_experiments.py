@@ -397,11 +397,8 @@ def main():
         time.sleep(0.6)  # Let the last update finish
         print("\r" + " " * 80 + "\r", end="")
 
-        # Print elegant summary
-        print("")
-        print("╭─────────────────────────────────────────────────╮")
-        print("│                  BATCH COMPLETE                 │")
-        print("╰─────────────────────────────────────────────────╯")
+        # Lock in completion state  
+        print("⏺ BATCH COMPLETE")
         print("")
         print(f"· Runs completed: {turn_counter}/{total_turns} ({turn_counter/total_turns*100:.0f}%)")
         print(f"· Output directory: {log_dir_path}")
