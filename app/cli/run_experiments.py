@@ -263,6 +263,7 @@ def configure_experiment_interactively():
         'personas': personas,
         'repetitions': repetitions,
         'temperature': temperature,
+        'experiment_code': experiment_code,
         'disable_containment': disable_containment,
         'experiment': experiment
     }
@@ -501,6 +502,7 @@ def main():
             args.temperature = config['temperature']
             args.repetitions = config['repetitions']
             args.disable_containment = config['disable_containment']
+            args.experiment_code = config['experiment_code']
             
             # Use all prompts from interactive config
             sys_prompts = config['sys_prompts']
