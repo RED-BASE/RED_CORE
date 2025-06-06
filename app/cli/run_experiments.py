@@ -320,8 +320,7 @@ def main():
         lock = threading.Lock()
 
         # Initialize progress tracking
-        start_time = time.time()
-        spinner_chars = ["⟁", "⧮", "✶", "⧲", "⧫", "✵", "✹", "⧯"]
+        spinner_chars = ["⟁", "▲", "▴", "▪", "*", ".", "+", " ", "+", ".", "*", "▪", "▴", "▲", "⟁", "⟊", "⧫", "⟊"]
         spinner_index = 0
         progress_running = True
         
@@ -337,14 +336,11 @@ def main():
         def progress_display_worker():
             nonlocal spinner_index
             while progress_running:
-                elapsed = time.time() - start_time
-                mins = int(elapsed // 60)
-                secs = elapsed % 60
                 spinner = spinner_chars[spinner_index % len(spinner_chars)]
                 error_text = f" ({len(failures)} errors)" if failures else ""
-                print(f"\r{spinner} [{turn_counter}/{total_turns}] {mins}m {secs:.1f}s elapsed{error_text}", end="", flush=True)
+                print(f"\r{spinner} [{turn_counter}/{total_turns}]{error_text}", end="", flush=True)
                 spinner_index += 1
-                time.sleep(0.5)  # Update every 500ms
+                time.sleep(0.12)  # Update every 120ms for faster breathing
         
         # Start background progress display
         progress_thread = threading.Thread(target=progress_display_worker, daemon=True)
