@@ -100,6 +100,7 @@ def run_exploit_yaml(
     model_name_pad: int = 20,
     user_turn_callback=None,
     experiment_code: str = DEFAULT_EXPERIMENT_CODE,
+    quiet: bool = False,
 ) -> dict:
     """Run an exploit YAML file and return the generated log.
 
@@ -265,7 +266,8 @@ def run_exploit_yaml(
     log_output.log_hash = log_hash
     log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
     log_session(str(log_path), log_output)
-    print(f"[INFO] Log saved to: {log_path}")
+    if not quiet:
+        print(f"[INFO] Log saved to: {log_path}")
     return log_output
 
 def main():
@@ -317,18 +319,36 @@ def main():
         turn_counter = 0
         lock = threading.Lock()
 
-        # Initialize progress bar
-        pbar = tqdm(total=total_turns, desc="Processing turns", unit="turn")
+        # Initialize progress tracking
+        start_time = time.time()
+        spinner_chars = ["⟁", "⧮", "✶", "⧲", "⧫", "✵", "✹", "⧯"]
+        spinner_index = 0
+        progress_running = True
         
         def update_turn_counter(model_name, model_turn_index, model_output):
             nonlocal turn_counter
             with lock:
                 turn_counter += 1
-                pbar.update(1)
-                pbar.set_postfix({"model": model_name[:15], "turn": f"{model_turn_index}/{num_turns_per_model}"})
 
-        successes = []
-        failures = []
+        successes = []  # Will store (model, run_id, log_path) tuples
+        failures = []  # Will store (model, error, traceback) tuples
+        model_failure_counts = {}  # Track failures per model for systematic detection
+        
+        def progress_display_worker():
+            nonlocal spinner_index
+            while progress_running:
+                elapsed = time.time() - start_time
+                mins = int(elapsed // 60)
+                secs = elapsed % 60
+                spinner = spinner_chars[spinner_index % len(spinner_chars)]
+                error_text = f" ({len(failures)} errors)" if failures else ""
+                print(f"\r{spinner} [{turn_counter}/{total_turns}] {mins}m {secs:.1f}s elapsed{error_text}", end="", flush=True)
+                spinner_index += 1
+                time.sleep(0.5)  # Update every 500ms
+        
+        # Start background progress display
+        progress_thread = threading.Thread(target=progress_display_worker, daemon=True)
+        progress_thread.start()
         log_dir_path = Path(LOG_DIR)
         log_dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -349,16 +369,22 @@ def main():
                     run_command=run_command_str,
                     user_turn_callback=update_turn_counter,
                     experiment_code=args.experiment_code,
+                    quiet=True,
                 )
                 with lock:
-                    successes.append(model)
+                    successes.append((model, result.isbn_run_id, str(Path(LOG_DIR) / f"{result.isbn_run_id}.json")))
                 return result
             except Exception as e:
                 import traceback
                 tb = traceback.format_exc()
                 with lock:
                     failures.append((model, str(e), tb))
-                print(f"\n[ERROR] {model}: {e}")
+                    model_failure_counts[model] = model_failure_counts.get(model, 0) + 1
+                    
+                    # Check for systematic failures (all runs for a model failing)
+                    expected_runs_per_model = num_turns_per_model
+                    if model_failure_counts[model] >= expected_runs_per_model:
+                        print(f"\n⚠️  WARNING: All {model} runs failing!")
                 return None
 
         with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
@@ -366,17 +392,27 @@ def main():
             for future in as_completed(futures):
                 _ = future.result()
         
-        pbar.close()
-        print(f"\n[SUCCESS] Completed {turn_counter}/{total_turns} turns")
+        # Stop progress display and clear line
+        progress_running = False
+        time.sleep(0.6)  # Let the last update finish
+        print("\r" + " " * 80 + "\r", end="")
 
-        # Print summary
+        # Print clean summary
         print("\n" + "=" * 50)
         print("EXPERIMENT RUN COMPLETE")
         print("=" * 50)
-        print(f"[SUMMARY] Turns completed: {turn_counter}/{total_turns}")
-        print(f"[SUMMARY] Successful logs: {len(successes)}")
-        print(f"[SUMMARY] Failed models: {len(failures)}")
+        print(f"[SUMMARY] Runs completed: {turn_counter}/{total_turns} ({turn_counter/total_turns*100:.0f}%)")
         print(f"[SUMMARY] Output directory: {log_dir_path}")
+        
+        # Show systematic issues if any
+        systematic_issues = []
+        for model, failure_count in model_failure_counts.items():
+            if failure_count >= num_turns_per_model:
+                systematic_issues.append(f"{model} (all runs failed)")
+        
+        if systematic_issues:
+            print(f"[SUMMARY] Systematic issues: {', '.join(systematic_issues)}")
+        
         print("=" * 50)
         if failures:
             from datetime import datetime
