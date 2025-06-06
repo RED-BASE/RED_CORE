@@ -319,8 +319,9 @@ def main():
         turn_counter = 0
         lock = threading.Lock()
 
-        # Initialize progress tracking
-        spinner_chars = ["✵", "❉", "❊", "✹", "✺", "✫", "✬", "✧", "✦", "✻", "✸", "✶", "❈", "❃", "❅", "✽", "✾", "❀", "✾", "✽", "❅", "❃", "❈", "✶", "✸", "✻", "✦", "✧", "✬", "✫", "✺", "✹", "❊", "❉"]
+        # Initialize progress tracking  
+        # Inspired by Claude's elegant thinking indicator, dot to bloom to dot progression
+        spinner_chars = ["⠐", "✢", "✳", "✶", "✻", "✽", "✻", "✶", "✢", "⠐"]
         spinner_index = 0
         progress_running = True
         
