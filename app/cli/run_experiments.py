@@ -112,70 +112,41 @@ def get_available_personas():
     return ["none"]
 
 def select_from_list(console, title, options, allow_multiple=False):
-    """Interactive selection with arrow keys."""
+    """Interactive selection with arrow keys using Rich's built-in prompt."""
+    from rich.prompt import Prompt
+    
     if not options:
         console.print(f"[red]No {title.lower()} available[/red]")
         return None
     
-    selected_index = 0
-    selected_items = set() if allow_multiple else None
+    # Show the options
+    console.print(f"[bold cyan]{title}:[/bold cyan]")
+    for i, option in enumerate(options):
+        console.print(f"  {i+1}. {option}")
     
-    def render_menu():
-        lines = [f"[bold cyan]{title}[/bold cyan]", ""]
-        for i, option in enumerate(options):
-            prefix = "→ " if i == selected_index else "  "
-            if allow_multiple:
-                checkbox = "☑ " if option in selected_items else "☐ "
-                style = "bold green" if option in selected_items else "white"
-                lines.append(f"{prefix}{checkbox}[{style}]{option}[/{style}]")
-            else:
-                style = "bold green" if i == selected_index else "white"
-                lines.append(f"{prefix}[{style}]{option}[/{style}]")
-        
-        if allow_multiple:
-            lines.append("")
-            lines.append("[dim]Space: toggle, Enter: confirm, Esc: cancel[/dim]")
-        else:
-            lines.append("")
-            lines.append("[dim]Enter: select, Esc: cancel[/dim]")
-        
-        return "\\n".join(lines)
-    
-    def get_key():
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(sys.stdin.fileno())
-            key = sys.stdin.read(1)
-            if key == '\\x1b':  # ESC sequence
-                key += sys.stdin.read(2)
-            return key
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    
-    with Live(render_menu(), console=console, refresh_per_second=30) as live:
+    if allow_multiple:
+        console.print("[dim]Enter numbers separated by spaces (e.g., 1 3 5)[/dim]")
         while True:
-            key = get_key()
-            
-            if key == '\\x1b[A':  # Up arrow
-                selected_index = (selected_index - 1) % len(options)
-            elif key == '\\x1b[B':  # Down arrow
-                selected_index = (selected_index + 1) % len(options)
-            elif key == ' ' and allow_multiple:  # Space for multi-select
-                option = options[selected_index]
-                if option in selected_items:
-                    selected_items.remove(option)
+            choice = Prompt.ask("Select options")
+            try:
+                indices = [int(x.strip()) - 1 for x in choice.split()]
+                if all(0 <= i < len(options) for i in indices):
+                    return [options[i] for i in indices]
                 else:
-                    selected_items.add(option)
-            elif key == '\\r' or key == '\\n':  # Enter
-                if allow_multiple:
-                    return list(selected_items)
+                    console.print("[red]Invalid selection. Please try again.[/red]")
+            except ValueError:
+                console.print("[red]Please enter numbers only.[/red]")
+    else:
+        while True:
+            choice = Prompt.ask("Select option (number)")
+            try:
+                index = int(choice) - 1
+                if 0 <= index < len(options):
+                    return options[index]
                 else:
-                    return options[selected_index]
-            elif key == '\\x1b':  # Escape
-                return None
-            
-            live.update(render_menu())
+                    console.print(f"[red]Please enter a number between 1 and {len(options)}[/red]")
+            except ValueError:
+                console.print("[red]Please enter a valid number.[/red]")
 
 def prompt_for_text(console, prompt, required=True):
     """Simple text input prompt."""
@@ -186,72 +157,79 @@ def prompt_for_text(console, prompt, required=True):
         console.print("[red]This field is required[/red]")
 
 def configure_experiment_interactively():
-    """Interactive experiment configuration using Rich."""
+    """Interactive experiment configuration using Rich with arrow key navigation."""
     console = Console()
     
     console.print()
     console.print(Panel("⚙ Interactive Batch Configuration", style="bold blue"))
     console.print()
     
-    # Get experiment folder (optional)
+    # Get experiment folder
     experiments = get_available_experiments()
-    if experiments:
-        experiment_choices = ["none"] + experiments
-        experiment = Prompt.ask(
-            "Experiment folder",
-            choices=experiment_choices,
-            default="none"
-        )
-        if experiment == "none":
-            experiment = None
-    else:
+    experiment_choices = ["none"] + experiments
+    experiment = select_from_list(console, "Select Experiment Folder", experiment_choices)
+    if experiment is None:
+        console.print("[yellow]Cancelled.[/yellow]")
+        return None
+    if experiment == "none":
         experiment = None
+    
+    console.print()
     
     # System prompts
     sys_prompts_options = get_available_prompts("**/sys*.yaml")
-    if sys_prompts_options:
-        console.print(f"Available system prompts: {', '.join(sys_prompts_options[:5])}..." if len(sys_prompts_options) > 5 else f"Available: {', '.join(sys_prompts_options)}")
+    if not sys_prompts_options:
+        console.print("[red]No system prompts found![/red]")
+        return None
     
-    sys_prompts_input = Prompt.ask(
-        "System prompts (space-separated)",
-        default="data/prompts/system/sys_helpful_assistant.yaml"
-    )
-    sys_prompts = sys_prompts_input.split()
+    sys_prompts = select_from_list(console, "Select System Prompts", sys_prompts_options, allow_multiple=True)
+    if not sys_prompts:
+        console.print("[yellow]No system prompts selected.[/yellow]")
+        return None
     
-    # User prompts
+    console.print()
+    
+    # User prompts  
     usr_prompts_options = get_available_prompts("**/usr*.yaml")
     if experiment:
         # Look for experiment-specific prompts first
         exp_prompts = get_available_prompts(f"**/*{experiment}*.yaml")
         if exp_prompts:
-            console.print(f"Found experiment-specific prompts: {', '.join(exp_prompts[:3])}..." if len(exp_prompts) > 3 else f"Found: {', '.join(exp_prompts)}")
+            console.print(f"[green]Found {len(exp_prompts)} experiment-specific prompts[/green]")
             usr_prompts_options = exp_prompts + usr_prompts_options
     
-    if usr_prompts_options:
-        console.print(f"Available user prompts: {', '.join(usr_prompts_options[:5])}..." if len(usr_prompts_options) > 5 else f"Available: {', '.join(usr_prompts_options)}")
+    if not usr_prompts_options:
+        console.print("[red]No user prompts found![/red]")
+        return None
+        
+    usr_prompts = select_from_list(console, "Select User Prompts", usr_prompts_options, allow_multiple=True)
+    if not usr_prompts:
+        console.print("[yellow]No user prompts selected.[/yellow]")
+        return None
     
-    usr_prompts_input = Prompt.ask("User prompts (space-separated)")
-    usr_prompts = usr_prompts_input.split() if usr_prompts_input.strip() else []
+    console.print()
     
     # Models
-    models_input = Prompt.ask(
-        "Models (space-separated)",
-        default="gpt-4o claude-3-7-sonnet-20250219 gemini-pro"
-    )
-    models = models_input.split()
+    model_choices = ["gpt-4o", "claude-3-7-sonnet-20250219", "claude-3-opus", "gemini-pro", "gemini-1.5-pro"]
+    models = select_from_list(console, "Select Models", model_choices, allow_multiple=True)
+    if not models:
+        console.print("[yellow]No models selected.[/yellow]")
+        return None
+    
+    console.print()
     
     # Personas
     personas_options = get_available_personas()
-    personas_input = Prompt.ask(
-        "Personas (space-separated)",
-        default="none"
-    )
-    personas = personas_input.split()
+    personas = select_from_list(console, "Select Personas", personas_options, allow_multiple=True)
+    if not personas:
+        personas = ["none"]  # Default to none if nothing selected
+    
+    console.print()
     
     # Parameters
-    repetitions = int(Prompt.ask("Repetitions per combination", default="1"))
-    temperature = float(Prompt.ask("Temperature", default="0.7"))
-    disable_containment = Confirm.ask("Disable containment?", default=False)
+    repetitions = int(prompt_for_text(console, "Repetitions per combination"))
+    temperature = float(prompt_for_text(console, "Temperature"))
+    disable_containment = Confirm.ask("Disable containment?")
     
     # Calculate totals
     total_combinations = len(sys_prompts) * len(usr_prompts) * len(models) * len(personas)
@@ -273,11 +251,7 @@ def configure_experiment_interactively():
     console.print(summary_table)
     console.print()
     
-    if not sys_prompts or not usr_prompts:
-        console.print("[red]⚠️ Please configure both system and user prompts[/red]")
-        return None
-    
-    if not Confirm.ask("Proceed with this configuration?", default=True):
+    if not Confirm.ask("Proceed with this configuration?"):
         console.print("[yellow]Aborted.[/yellow]")
         return None
     
