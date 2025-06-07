@@ -114,41 +114,77 @@ def get_available_personas():
     return ["none"]
 
 def select_from_list(console, title, options, allow_multiple=False):
-    """Interactive selection with arrow keys using Rich's built-in prompt."""
+    """Interactive selection with enhanced styling."""
     from rich.prompt import Prompt
+    from rich.table import Table
+    from rich.panel import Panel
     
     if not options:
-        console.print(f"[red]No {title.lower()} available[/red]")
+        console.print(Panel(f"[red]No {title.lower()} available[/red]", style="red"))
         return None
     
-    # Show the options
-    console.print(f"[bold cyan]{title}:[/bold cyan]")
+    # Create a styled table for options
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column("", style="bright_blue", width=4)
+    table.add_column("", style="white")
+    
     for i, option in enumerate(options):
-        console.print(f"  {i+1}. {option}")
+        # Add visual indicators for different model types
+        icon = ""
+        style = "white"
+        if "gpt" in option.lower():
+            icon = "🤖"
+            style = "bright_green"
+        elif "claude" in option.lower():
+            icon = "🧠"
+            style = "bright_magenta" 
+        elif "gemini" in option.lower():
+            icon = "✨"
+            style = "bright_cyan"
+        elif "mistral" in option.lower():
+            icon = "⚡"
+            style = "bright_yellow"
+        elif option.endswith(".yaml"):
+            icon = "📝"
+            style = "cyan"
+        
+        table.add_row(f"{icon} {i+1}.", f"[{style}]{option}[/{style}]")
+    
+    # Display with panel
+    console.print(Panel(
+        table, 
+        title=f"[bold bright_blue]{title}[/bold bright_blue]",
+        border_style="bright_blue"
+    ))
     
     if allow_multiple:
-        console.print("[dim]Enter numbers separated by spaces (e.g., 1 3 5)[/dim]")
+        console.print("[dim italic]💡 Enter numbers separated by spaces (e.g., 1 3 5)[/dim italic]")
         while True:
-            choice = Prompt.ask("Select options")
+            choice = Prompt.ask("[bold bright_yellow]Select options[/bold bright_yellow]", default="")
+            if not choice.strip():
+                return []
             try:
                 indices = [int(x.strip()) - 1 for x in choice.split()]
                 if all(0 <= i < len(options) for i in indices):
-                    return [options[i] for i in indices]
+                    selected = [options[i] for i in indices]
+                    console.print(f"[green]✓ Selected {len(selected)} items[/green]")
+                    return selected
                 else:
-                    console.print("[red]Invalid selection. Please try again.[/red]")
+                    console.print("[red]❌ Invalid selection. Please try again.[/red]")
             except ValueError:
-                console.print("[red]Please enter numbers only.[/red]")
+                console.print("[red]❌ Please enter numbers only.[/red]")
     else:
         while True:
-            choice = Prompt.ask("Select option (number)")
+            choice = Prompt.ask("[bold bright_yellow]Select option[/bold bright_yellow] (number)")
             try:
                 index = int(choice) - 1
                 if 0 <= index < len(options):
+                    console.print(f"[green]✓ Selected: [white]{options[index]}[/white][/green]")
                     return options[index]
                 else:
-                    console.print(f"[red]Please enter a number between 1 and {len(options)}[/red]")
+                    console.print(f"[red]❌ Please enter a number between 1 and {len(options)}[/red]")
             except ValueError:
-                console.print("[red]Please enter a valid number.[/red]")
+                console.print("[red]❌ Please enter a valid number.[/red]")
 
 def prompt_for_text(console, prompt, required=True):
     """Simple text input prompt."""
@@ -159,11 +195,21 @@ def prompt_for_text(console, prompt, required=True):
         console.print("[red]This field is required[/red]")
 
 def configure_experiment_interactively():
-    """Interactive experiment configuration using Rich with arrow key navigation."""
+    """Interactive experiment configuration using Rich with enhanced styling."""
     console = Console()
     
+    # Welcome header with gradient-like effect
     console.print()
-    console.print(Panel("⚙ Interactive Batch Configuration", style="bold blue"))
+    welcome_text = """[bold bright_cyan]🔬 RED_CORE[/bold bright_cyan] [dim]|[/dim] [bold bright_magenta]Interactive Experiment Configuration[/bold bright_magenta]
+
+[dim italic]Configure your AI safety experiment parameters with guided prompts[/dim italic]"""
+    
+    console.print(Panel(
+        welcome_text,
+        style="bright_blue",
+        border_style="bright_cyan",
+        padding=(1, 2)
+    ))
     console.print()
     
     # Get experiment folder
@@ -604,10 +650,24 @@ def main():
         
         def progress_display_worker():
             nonlocal spinner_index
+            from rich.console import Console
+            console = Console()
+            
             while progress_running:
                 spinner = spinner_chars[spinner_index % len(spinner_chars)]
-                error_text = f" ({len(failures)} errors)" if failures else ""
-                print(f"\r{spinner} Running... {turn_counter}/{total_turns}{error_text}", end="", flush=True)
+                
+                # Simple blinking dingbat that feels like "working"
+                blink_chars = ["▪", "▫"]  # Solid/hollow square that blinks
+                blink_symbol = blink_chars[(spinner_index // 5) % len(blink_chars)]
+                
+                # Format: (▪ 45/100 · 3 errors) or just (▪ 45/100) if no errors
+                if failures:
+                    progress_text = f" ([dim]{blink_symbol}[/dim] [dim white]{turn_counter}/{total_turns}[/dim white] [dim]·[/dim] [red]{len(failures)} errors[/red])"
+                else:
+                    progress_text = f" ([dim]{blink_symbol}[/dim] [dim white]{turn_counter}/{total_turns}[/dim white])"
+                
+                # Golden orange styling for the running state
+                console.print(f"\r[bold #ff8c00]{spinner}[/bold #ff8c00] [#ff8c00]Running...[/#ff8c00]{progress_text}", end="")
                 spinner_index += 1
                 time.sleep(0.18)  # Update every 180ms for more zen breathing
         
@@ -658,11 +718,34 @@ def main():
         time.sleep(0.6)  # Let the last update finish
         print("\r" + " " * 80 + "\r", end="")
 
-        # Lock in completion state  
-        print("⏺ BATCH COMPLETE")
-        print("")
-        print(f"· Runs completed: {turn_counter}/{total_turns} ({turn_counter/total_turns*100:.0f}%)")
-        print(f"· Output directory: {log_dir_path}")
+        # Lock in completion state with golden finish
+        from rich.console import Console
+        from rich.panel import Panel
+        console = Console()
+        
+        completion_rate = turn_counter/total_turns*100 if total_turns > 0 else 0
+        
+        # Choose completion color based on success rate
+        if completion_rate >= 95:
+            completion_color = "#228b22"  # Forest green for high success
+            status_icon = "✅"
+        elif completion_rate >= 80:
+            completion_color = "#ffa500"  # Orange for moderate success  
+            status_icon = "⚠️"
+        else:
+            completion_color = "#dc143c"  # Crimson for low success
+            status_icon = "❌"
+            
+        completion_text = f"""[bold {completion_color}]{status_icon} BATCH COMPLETE[/bold {completion_color}]
+
+[dim]·[/dim] Runs completed: [bold white]{turn_counter}/{total_turns}[/bold white] [dim]([bold {completion_color}]{completion_rate:.0f}%[/bold {completion_color}])[/dim]
+[dim]·[/dim] Output directory: [bold cyan]{log_dir_path}[/bold cyan]"""
+
+        console.print(Panel(
+            completion_text,
+            border_style=completion_color,
+            padding=(0, 1)
+        ))
         
         # Show systematic issues if any
         systematic_issues = []
