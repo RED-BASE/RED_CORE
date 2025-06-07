@@ -24,13 +24,13 @@ MODEL_REGISTRY = {
         "features": ["text"],
     },
     "claude-3-opus": {
-        "aliases": ["claude", "claude-opus"],
+        "aliases": ["claude-3-opus", "claude-3-opus-20240229"],
         "code": "C3O",
         "vendor": "anthropic",
         "features": ["text"],
     },
-    "claude-3-7-sonnet": {
-        "aliases": [],
+    "claude-3-7-sonnet-20250219": {
+        "aliases": ["claude-3-7-sonnet", "claude-3-7-sonnet-20250219", "claude"],
         "code": "C37S",
         "vendor": "anthropic",
         "features": ["text"],
@@ -100,7 +100,7 @@ def get_default_model() -> str:
     raise RuntimeError("No default model set in MODEL_REGISTRY.")
 
 # === FILESYSTEM DEFAULTS ===
-LOG_DIR = os.getenv("LOG_DIR", "data/experiments/guardrail_decay/logs/")
+LOG_DIR = os.getenv("LOG_DIR", "experiments/guardrail_decay/logs/")
 SUMMARY_DIR = "logs/summary"
 SYSTEM_PROMPT_DIR = "data/prompts/system"
 USER_PROMPT_DIR = "data/prompts/user"

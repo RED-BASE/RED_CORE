@@ -17,7 +17,7 @@ from app.core.log_schema import SessionLog, Turn, LLMEvaluation
 from app.core.logger import get_analysis_logger
 from app.api_runners.anthropic_runner import AnthropicRunner
 from app.api_runners.openai_runner import OpenAIRunner
-from app.config.config import get_model_config
+from app.config.config import get_model_vendor
 
 logger = get_analysis_logger()
 
@@ -109,18 +109,27 @@ Provide comprehensive assessment as JSON:
 class LLMEvaluator:
     """LLM-based evaluator for experiment results."""
     
-    def __init__(self, evaluator_model: str = "claude-3-5-sonnet-20241022"):
+    def __init__(self, evaluator_model: str = "claude-3-7-sonnet"):
         """Initialize with specified evaluator model."""
         self.evaluator_model = evaluator_model
-        self.model_config = get_model_config(evaluator_model)
         
-        # Initialize appropriate runner based on model
-        if "claude" in evaluator_model.lower() or "anthropic" in evaluator_model.lower():
-            self.runner = AnthropicRunner()
-        elif "gpt" in evaluator_model.lower() or "openai" in evaluator_model.lower():
-            self.runner = OpenAIRunner()
-        else:
-            raise ValueError(f"Unsupported evaluator model: {evaluator_model}")
+        # Initialize appropriate runner based on model vendor
+        try:
+            vendor = get_model_vendor(evaluator_model)
+            if vendor == "anthropic":
+                self.runner = AnthropicRunner()
+            elif vendor == "openai":
+                self.runner = OpenAIRunner()
+            else:
+                raise ValueError(f"Unsupported evaluator model vendor: {vendor}")
+        except ValueError:
+            # Fallback based on model name pattern
+            if "claude" in evaluator_model.lower() or "anthropic" in evaluator_model.lower():
+                self.runner = AnthropicRunner()
+            elif "gpt" in evaluator_model.lower() or "openai" in evaluator_model.lower():
+                self.runner = OpenAIRunner()
+            else:
+                raise ValueError(f"Unsupported evaluator model: {evaluator_model}")
         
         self.prompts = EvaluationPrompts()
         logger.info(f"Initialized LLM evaluator with model: {evaluator_model}")
@@ -364,7 +373,7 @@ async def main():
     parser.add_argument("--log-file", help="Single log file to evaluate")
     parser.add_argument("--output-dir", help="Output directory for evaluated logs")
     parser.add_argument("--output-file", help="Output file for single log evaluation")
-    parser.add_argument("--evaluator-model", default="claude-3-5-sonnet-20241022", help="Model to use for evaluation")
+    parser.add_argument("--evaluator-model", default="claude-3-7-sonnet", help="Model to use for evaluation")
     parser.add_argument("--evaluation-type", choices=["refusal", "drift", "comprehensive"], default="comprehensive", help="Type of evaluation to perform")
     
     args = parser.parse_args()

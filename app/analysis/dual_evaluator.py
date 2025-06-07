@@ -23,7 +23,7 @@ logger = get_analysis_logger()
 class DualEvaluator:
     """Combines automated scoring with LLM evaluation."""
     
-    def __init__(self, evaluator_model: str = "claude-3-5-sonnet-20241022"):
+    def __init__(self, evaluator_model: str = "claude-3-7-sonnet"):
         """Initialize both evaluation systems."""
         self.automated_scorer = AutomatedScorer()
         self.llm_evaluator = LLMEvaluator(evaluator_model)
@@ -269,7 +269,7 @@ async def main():
     parser.add_argument("--log-file", help="Single log file to evaluate")
     parser.add_argument("--output-dir", help="Output directory for evaluation results")
     parser.add_argument("--output-file", help="Output file for single log evaluation")
-    parser.add_argument("--evaluator-model", default="claude-3-5-sonnet-20241022", help="LLM model to use for evaluation")
+    parser.add_argument("--evaluator-model", default="claude-3-7-sonnet", help="LLM model to use for evaluation")
     
     args = parser.parse_args()
     

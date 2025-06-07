@@ -5,10 +5,10 @@ from app.core.context import ConversationHistory
 
 # --- CONFIG IMPORT ---
 try:
-    from app.config import ANTHROPIC_API_KEY, MODEL_ALIASES
+    from app.config import ANTHROPIC_API_KEY, resolve_model
 except ImportError:
     ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-    MODEL_ALIASES = {}
+    def resolve_model(name): return name
 
 class AnthropicRunner:
     def __init__(self, model_name: str = "claude-3-opus"):
@@ -16,7 +16,7 @@ class AnthropicRunner:
         if not self.api_key:
             raise ValueError("ANTHROPIC_API_KEY not set (check your .env or config.py)")
 
-        self.model_name = MODEL_ALIASES.get(model_name, model_name)
+        self.model_name = resolve_model(model_name)
         self._system_prompt = ""
         self.client = Anthropic(api_key=self.api_key)
         self.last_response = None
