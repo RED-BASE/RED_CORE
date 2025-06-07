@@ -17,6 +17,7 @@ import threading
 import copy
 import platform
 import time
+import itertools
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
@@ -536,14 +537,15 @@ def main():
         else:
             log_dir_path = Path(LOG_DIR)
         
-        total_experiments = len(sys_prompts) * len(usr_prompts) * len(args.models) * len(personas) * repetitions
+        # Generate all experiment combinations
+        combinations = list(itertools.product(sys_prompts, usr_prompts, args.models, personas, range(repetitions)))
         
         # For progress tracking, we need to know turns per experiment
         sample_usr_prompt = Path(usr_prompts[0])
         with open(sample_usr_prompt, "r") as f:
             user_prompt_yaml = yaml.safe_load(f)
         num_turns_per_experiment = len(user_prompt_yaml.get("variants", []))
-        total_turns = total_experiments * num_turns_per_experiment
+        total_turns = len(combinations) * num_turns_per_experiment
         turn_counter = 0
         lock = threading.Lock()
 
@@ -576,15 +578,16 @@ def main():
         progress_thread.start()
         log_dir_path.mkdir(parents=True, exist_ok=True)
 
-        def run_one(model):
+        def run_one_experiment(combination):
+            sys_prompt, usr_prompt, model, persona, rep = combination
             try:
                 result = run_exploit_yaml(
-                    yaml_path=str(usr_prompts[0]),  # Quick fix: use first prompt
-                    sys_prompt=str(sys_prompts[0]),  # Quick fix: use first prompt
+                    yaml_path=str(usr_prompt),
+                    sys_prompt=str(sys_prompt),
                     model_name=model,
                     temperature=args.temperature,
                     mode=args.mode,
-                    persona_name=args.persona,
+                    persona_name=persona if persona != "none" else None,
                     drift_threshold=args.drift_threshold,
                     disable_containment=args.disable_containment,
                     experiment_id=args.experiment_id,
@@ -596,23 +599,18 @@ def main():
                     quiet=True,
                 )
                 with lock:
-                    successes.append((model, result.isbn_run_id, str(Path(LOG_DIR) / f"{result.isbn_run_id}.json")))
+                    successes.append((f"{model}({rep+1})", result.isbn_run_id, str(log_dir_path / f"{result.isbn_run_id}.json")))
                 return result
             except Exception as e:
                 import traceback
                 tb = traceback.format_exc()
                 with lock:
-                    failures.append((model, str(e), tb))
+                    failures.append((f"{model}({rep+1})", str(e), tb))
                     model_failure_counts[model] = model_failure_counts.get(model, 0) + 1
-                    
-                    # Check for systematic failures (all runs for a model failing)
-                    expected_runs_per_model = num_turns_per_model
-                    if model_failure_counts[model] >= expected_runs_per_model:
-                        print(f"\n⚠️  WARNING: All {model} runs failing!")
                 return None
 
-        with ThreadPoolExecutor(max_workers=len(args.models)) as executor:
-            futures = {executor.submit(run_one, m): m for m in args.models}
+        with ThreadPoolExecutor(max_workers=min(len(combinations), 6)) as executor:
+            futures = {executor.submit(run_one_experiment, combo): combo for combo in combinations}
             for future in as_completed(futures):
                 _ = future.result()
         
