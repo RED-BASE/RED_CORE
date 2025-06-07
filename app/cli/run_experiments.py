@@ -129,26 +129,37 @@ def select_from_list(console, title, options, allow_multiple=False):
     table.add_column("", style="white")
     
     for i, option in enumerate(options):
-        # Add visual indicators for different model types
-        icon = ""
+        # Get clean display name and styling
+        display_name = option
         style = "white"
-        if "gpt" in option.lower():
-            icon = "🤖"
+        
+        # For file paths, show just the filename
+        if "/" in option and option.endswith(".yaml"):
+            display_name = Path(option).name
+            
+            # Color code by experiment type/pattern
+            if "guardrail_decay" in option or "grd" in option.lower():
+                style = "bright_red"  # Red for guardrail decay
+            elif "refusal" in option:
+                style = "bright_yellow"  # Yellow for refusal robustness
+            elif "80k_hours" in option or "80k" in option.lower():
+                style = "bright_blue"  # Blue for 80k hours demo
+            elif "universal" in option or "exploit" in option:
+                style = "bright_magenta"  # Magenta for universal exploits
+            else:
+                style = "cyan"  # Default cyan for other prompts
+        
+        # Model type styling (for non-file options)
+        elif "gpt" in option.lower():
             style = "bright_green"
         elif "claude" in option.lower():
-            icon = "🧠"
             style = "bright_magenta" 
         elif "gemini" in option.lower():
-            icon = "✨"
             style = "bright_cyan"
         elif "mistral" in option.lower():
-            icon = "⚡"
             style = "bright_yellow"
-        elif option.endswith(".yaml"):
-            icon = "📝"
-            style = "cyan"
         
-        table.add_row(f"{icon} {i+1}.", f"[{style}]{option}[/{style}]")
+        table.add_row(f"{i+1}.", f"[{style}]{display_name}[/{style}]")
     
     # Display with panel
     console.print(Panel(
@@ -158,7 +169,7 @@ def select_from_list(console, title, options, allow_multiple=False):
     ))
     
     if allow_multiple:
-        console.print("[dim italic]💡 Enter numbers separated by spaces (e.g., 1 3 5)[/dim italic]")
+        console.print("[dim italic]Enter numbers separated by spaces (e.g., 1 3 5)[/dim italic]")
         while True:
             choice = Prompt.ask("[bold bright_yellow]Select options[/bold bright_yellow]", default="")
             if not choice.strip():
@@ -610,9 +621,21 @@ def main():
         repetitions = config.get('repetitions', 1) if args.interactive or not args.sys_prompt or not args.usr_prompt else 1
         experiment_folder = config.get('experiment') if args.interactive or not args.sys_prompt or not args.usr_prompt else None
         
-        # Set log directory based on selected experiment
+        # Map experiment codes to directory names
+        EXPERIMENT_CODE_TO_FOLDER = {
+            "80K": "80k_hours_demo",
+            "GRD": "guardrail_decay", 
+            "RRS": "refusal_robustness",
+            "UEX": "universal_exploits",  # For future use
+            "ETH": "ethical_ambiguity"    # For future use
+        }
+        
+        # Set log directory based on selected experiment or experiment code
         if experiment_folder:
             log_dir_path = Path(f"experiments/{experiment_folder}/logs")
+        elif args.experiment_code and args.experiment_code in EXPERIMENT_CODE_TO_FOLDER:
+            mapped_folder = EXPERIMENT_CODE_TO_FOLDER[args.experiment_code]
+            log_dir_path = Path(f"experiments/{mapped_folder}/logs")
         else:
             log_dir_path = Path(LOG_DIR)
         
@@ -657,10 +680,10 @@ def main():
                 spinner = spinner_chars[spinner_index % len(spinner_chars)]
                 
                 # Simple blinking dingbat that feels like "working"
-                blink_chars = ["▪", "▫"]  # Solid/hollow square that blinks
+                blink_chars = [" ", "○"]  # Blank space and dashed circle
                 blink_symbol = blink_chars[(spinner_index // 5) % len(blink_chars)]
                 
-                # Format: (▪ 45/100 · 3 errors) or just (▪ 45/100) if no errors
+                # Format: (○ 45/100 · 3 errors) or just ( 45/100) if no errors
                 if failures:
                     progress_text = f" ([dim]{blink_symbol}[/dim] [dim white]{turn_counter}/{total_turns}[/dim white] [dim]·[/dim] [red]{len(failures)} errors[/red])"
                 else:
