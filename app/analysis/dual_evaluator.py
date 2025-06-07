@@ -147,7 +147,7 @@ class DualEvaluator:
         
         return comparison
     
-    async def evaluate_log_file(self, log_path: Path, output_path: Optional[Path] = None) -> Optional[Dict[str, Any]]:
+    async def evaluate_log_file(self, log_path: Path, output_path: Optional[Path] = None, update_in_place: bool = True) -> Optional[Dict[str, Any]]:
         """Evaluate a single log file with dual evaluation."""
         try:
             # Load log file
@@ -156,14 +156,21 @@ class DualEvaluator:
             
             session_log = SessionLog(**data)
             
-            # Perform dual evaluation
+            # Perform dual evaluation (modifies session_log in place)
             results = await self.evaluate_session_complete(session_log)
             
-            # Save results if output path provided
+            if update_in_place:
+                # Update the original log file with embedded scoring
+                updated_data = session_log.model_dump()
+                with open(log_path, 'w') as f:
+                    json.dump(updated_data, f, indent=2)
+                logger.info(f"Updated original log file with dual evaluation: {log_path}")
+            
+            # Also save separate analysis results if output path provided
             if output_path:
                 with open(output_path, 'w') as f:
                     json.dump(results, f, indent=2)
-                logger.info(f"Saved dual evaluation results to {output_path}")
+                logger.info(f"Saved dual evaluation analysis to {output_path}")
             
             return results
             
@@ -173,24 +180,33 @@ class DualEvaluator:
     
     async def batch_evaluate_directory(self, log_dir: Path, output_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
         """Evaluate all log files in a directory with dual evaluation."""
-        log_files = [f for f in log_dir.glob("*.json") if f.name != "run_failures.txt"]
+        log_files = [f for f in log_dir.glob("*.json") if f.name != "run_failures.txt" and not f.name.endswith("_dual_evaluated.json")]
         
         if not log_files:
             logger.warning(f"No JSON log files found in {log_dir}")
             return []
         
+        # Default output directory: create 'dual_evaluated' subdirectory in same experiment folder
+        if not output_dir:
+            if "experiments" in str(log_dir):
+                # Extract experiment folder (e.g., experiments/80k_hours_demo/logs -> experiments/80k_hours_demo/dual_evaluated)
+                experiment_dir = log_dir.parent
+                output_dir = experiment_dir / "dual_evaluated"
+            else:
+                # Fallback: create dual_evaluated next to logs directory
+                output_dir = log_dir.parent / "dual_evaluated"
+        
+        output_dir.mkdir(exist_ok=True)
         logger.info(f"Starting dual evaluation of {len(log_files)} log files")
+        logger.info(f"Output directory: {output_dir}")
         results = []
         
         for i, log_file in enumerate(log_files, 1):
             logger.info(f"Processing file {i}/{len(log_files)}: {log_file.name}")
             
-            output_path = None
-            if output_dir:
-                output_dir.mkdir(exist_ok=True)
-                output_path = output_dir / f"{log_file.stem}_dual_evaluated.json"
+            output_path = output_dir / f"{log_file.stem}_dual_evaluated.json"
             
-            result = await self.evaluate_log_file(log_file, output_path)
+            result = await self.evaluate_log_file(log_file, output_path, update_in_place=True)
             if result:
                 results.append(result)
                 
@@ -270,6 +286,7 @@ async def main():
     parser.add_argument("--output-dir", help="Output directory for evaluation results")
     parser.add_argument("--output-file", help="Output file for single log evaluation")
     parser.add_argument("--evaluator-model", default="claude-3-7-sonnet", help="LLM model to use for evaluation")
+    parser.add_argument("--no-update-in-place", action="store_true", help="Don't update original log files, only create separate analysis files")
     
     args = parser.parse_args()
     
@@ -283,9 +300,11 @@ async def main():
         log_path = Path(args.log_file)
         output_path = Path(args.output_file) if args.output_file else None
         
-        result = await evaluator.evaluate_log_file(log_path, output_path)
+        update_in_place = not args.no_update_in_place
+        result = await evaluator.evaluate_log_file(log_path, output_path, update_in_place)
         if result:
-            print(f"Successfully completed dual evaluation of {log_path}")
+            action = "updated original log" if update_in_place else "created analysis file"
+            print(f"Successfully completed dual evaluation of {log_path} ({action})")
             
             # Print summary
             comparison = result.get("scoring_comparison", {})

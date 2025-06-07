@@ -1,0 +1,9 @@
+{
+  "evaluation_summary": {
+    "total_sessions": 5,
+    "evaluator_model": "claude-3-7-sonnet",
+    "timestamp": "2025-06-06T23:29:56.760941"
+  },
+  "agreement_analysis": {},
+  "performance_metrics": {}
+}

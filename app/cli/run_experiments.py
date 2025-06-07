@@ -125,29 +125,47 @@ def select_from_list(console, title, options, allow_multiple=False):
     
     # Create a styled table for options
     table = Table(show_header=False, box=None, padding=(0, 2))
-    table.add_column("", style="bright_blue", width=4)
+    table.add_column("", style="dim", width=4)
     table.add_column("", style="white")
     
     for i, option in enumerate(options):
         # Get clean display name and styling
         display_name = option
-        style = "white"
+        style = "#c0c0c0"  # Light gray, easier on the eyes
         
         # For file paths, show just the filename
         if "/" in option and option.endswith(".yaml"):
             display_name = Path(option).name
             
-            # Color code by experiment type/pattern
+            # Auto-assign color by experiment code/pattern using hash
+            experiment_colors = [
+                "bright_red", "bright_yellow", "bright_blue", "bright_magenta", 
+                "bright_cyan", "bright_green", "red", "yellow", "blue", "magenta"
+            ]
+            
+            # Extract experiment identifier for consistent coloring
+            exp_id = ""
             if "guardrail_decay" in option or "grd" in option.lower():
-                style = "bright_red"  # Red for guardrail decay
+                exp_id = "GRD"
             elif "refusal" in option:
-                style = "bright_yellow"  # Yellow for refusal robustness
+                exp_id = "RRS" 
             elif "80k_hours" in option or "80k" in option.lower():
-                style = "bright_blue"  # Blue for 80k hours demo
+                exp_id = "80K"
             elif "universal" in option or "exploit" in option:
-                style = "bright_magenta"  # Magenta for universal exploits
+                exp_id = "UNI"
             else:
-                style = "cyan"  # Default cyan for other prompts
+                # Use directory name as experiment ID
+                parts = option.split("/")
+                for part in parts:
+                    if "experiments" in parts and parts.index(part) > parts.index("experiments"):
+                        exp_id = part.upper()[:3]
+                        break
+                if not exp_id:
+                    exp_id = Path(option).parent.name.upper()[:3]
+            
+            # Assign color based on hash of experiment ID for consistency
+            color_index = hash(exp_id) % len(experiment_colors)
+            style = experiment_colors[color_index]
         
         # Model type styling (for non-file options)
         elif "gpt" in option.lower():
@@ -673,8 +691,6 @@ def main():
         
         def progress_display_worker():
             nonlocal spinner_index
-            from rich.console import Console
-            console = Console()
             
             while progress_running:
                 spinner = spinner_chars[spinner_index % len(spinner_chars)]
@@ -685,12 +701,12 @@ def main():
                 
                 # Format: (○ 45/100 · 3 errors) or just ( 45/100) if no errors
                 if failures:
-                    progress_text = f" ([dim]{blink_symbol}[/dim] [dim white]{turn_counter}/{total_turns}[/dim white] [dim]·[/dim] [red]{len(failures)} errors[/red])"
+                    progress_text = f" ({blink_symbol} {turn_counter}/{total_turns} · {len(failures)} errors)"
                 else:
-                    progress_text = f" ([dim]{blink_symbol}[/dim] [dim white]{turn_counter}/{total_turns}[/dim white])"
+                    progress_text = f" ({blink_symbol} {turn_counter}/{total_turns})"
                 
-                # Golden orange styling for the running state
-                console.print(f"\r[bold #ff8c00]{spinner}[/bold #ff8c00] [#ff8c00]Running...[/#ff8c00]{progress_text}", end="")
+                # Golden orange styling for the running state - use plain print for proper \r behavior
+                print(f"\r\033[38;5;208m{spinner}\033[0m \033[38;5;208mRunning...\033[0m{progress_text}", end="", flush=True)
                 spinner_index += 1
                 time.sleep(0.18)  # Update every 180ms for more zen breathing
         
@@ -751,22 +767,22 @@ def main():
         # Choose completion color based on success rate
         if completion_rate >= 95:
             completion_color = "#228b22"  # Forest green for high success
-            status_icon = "✅"
+            status_text = "BATCH COMPLETE"
         elif completion_rate >= 80:
             completion_color = "#ffa500"  # Orange for moderate success  
-            status_icon = "⚠️"
+            status_text = "BATCH COMPLETE"
         else:
             completion_color = "#dc143c"  # Crimson for low success
-            status_icon = "❌"
+            status_text = "BATCH COMPLETE"
             
-        completion_text = f"""[bold {completion_color}]{status_icon} BATCH COMPLETE[/bold {completion_color}]
+        completion_text = f"""[bold {completion_color}]{status_text}[/bold {completion_color}]
 
-[dim]·[/dim] Runs completed: [bold white]{turn_counter}/{total_turns}[/bold white] [dim]([bold {completion_color}]{completion_rate:.0f}%[/bold {completion_color}])[/dim]
+[dim]·[/dim] Runs completed: [bold white]{turn_counter}/{total_turns}[/bold white] [dim]([white]{completion_rate:.0f}%[/white])[/dim]
 [dim]·[/dim] Output directory: [bold cyan]{log_dir_path}[/bold cyan]"""
 
         console.print(Panel(
             completion_text,
-            border_style=completion_color,
+            border_style="dim",
             padding=(0, 1)
         ))
         

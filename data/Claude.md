@@ -92,7 +92,8 @@ dual_evaluator.py [NEW]
 ├─ Dependencies: automated_scorer, llm_evaluator
 ├─ Purpose: Combined rule-based + LLM evaluation with comparison metrics
 ├─ Key Features: Method agreement analysis, batch processing, summary reports
-└─ Notes: Provides comprehensive dual-scoring for research validation
+├─ Output Behavior: Updates original logs in-place via llm_evaluation schema fields
+└─ Notes: Maintains data lineage by enriching existing experiment files
 
 log_insight_report.py
 ├─ Purpose: Aggregate analysis across experiments
@@ -147,6 +148,33 @@ log_insight_report.py
 - Removed duplicate `score_logs` directory, standardized on `scored_logs`
 - Fixed documentation file naming (`scoring rules.md` → `scoring_rules.md`)
 
+### 2025-06-06: Production-Ready Data Lineage & Directory Structure
+**Decision**: Fix directory organization and implement in-place log enrichment
+**Rationale**: Research requires connected data - separate scoring files break experimental lineage
+**Changes Made**:
+- Fixed experiment directory mapping logic (80K → 80k_hours_demo, etc.)
+- Redesigned dual evaluator to update original logs in-place via schema fields
+- Embedded scoring directly in `llm_evaluation` and automated scoring fields
+- Created clean directory structure: `logs/`, `dual_evaluated/`, `scored_logs/`
+
+**Key Innovation**: In-place log enrichment preserves complete data lineage while maintaining schema compliance
+- Original experiment data remains unchanged
+- Scoring metadata added to designated schema fields
+- Single authoritative file contains everything needed for research
+- Follows ML industry best practices (MLflow, W&B patterns)
+
+**Dual Evaluator Output Structure**:
+```
+experiments/{experiment}/
+├── logs/                    # Original + enriched experiment logs
+│   ├── 80K-C37S-*.json     # Now contains llm_evaluation + automated scoring
+│   └── run_failures.txt    # Error logs
+├── dual_evaluated/          # Optional separate analysis files 
+│   ├── *_dual_evaluated.json        # Comparison metrics & method agreement
+│   └── dual_evaluation_summary.json # Aggregate analysis across all logs
+└── scored_logs/             # Manual human review files (existing)
+```
+
 ### 2025-06-06: Schema Validation & Dual Evaluation Success
 **Decision**: End-to-end pipeline validation with real experiment data
 **Rationale**: Confirm new schema and dual evaluation system before large-scale deployment
@@ -179,7 +207,7 @@ log_insight_report.py
 
 ## 🚨 Current Development Focus
 
-**Priority**: ✅ **COMPLETE** - Schema validation and dual evaluation testing!
+**Priority**: ✅ **COMPLETE** - Production-ready dual evaluation system with proper data lineage!
 
 **Recently Completed**:
 1. ✅ **Schema Implementation** - Updated `run_experiments.py` with new fields
@@ -221,6 +249,14 @@ log_insight_report.py
    - ✅ Successful dual evaluation pipeline execution (rule-based + LLM scoring)
    - ✅ Confirmed automated scoring accuracy (5 turns: 1 refusal, 4 compliance, 100% safety rate)
    - ✅ Verified JSON output format for research publication readiness
+
+6. ✅ **Directory Structure & Data Lineage Fixes** - Production-ready organization
+   - ✅ Fixed experiment directory mapping (80K → 80k_hours_demo, GRD → guardrail_decay, RRS → refusal_robustness)
+   - ✅ Implemented in-place log enrichment instead of separate disconnected files
+   - ✅ Embedded dual scoring directly in original logs via `llm_evaluation` schema fields
+   - ✅ Maintained complete data lineage for research reproducibility
+   - ✅ Created smart directory structure: `logs/`, `dual_evaluated/`, `scored_logs/`
+   - ✅ Preserved backward compatibility with optional separate analysis files
 
 **Next Steps** (Strategic Roadmap):
 
