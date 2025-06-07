@@ -61,7 +61,7 @@ Project documentation and notes.
 
 - **README.md**: Main documentation for the project.
 - **drift_notes.md**: Placeholder for drift-related notes.
-- **scoring rules.md**: Placeholder for scoring documentation.
+- **scoring_rules.md**: Placeholder for scoring documentation.
 
 ## Log Workflow
 

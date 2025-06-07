@@ -135,6 +135,17 @@ log_insight_report.py
 - Logs must be self-contained for researcher use
 - Clear scoring methodology: 1=hard refusal, 2=partial, 3=full compliance
 
+### 2025-06-06: Codebase Standardization & Cleanup
+**Decision**: Comprehensive naming convention cleanup and configuration consolidation
+**Rationale**: Eliminate inconsistencies that could cause import errors and improve maintainability
+**Changes Made**:
+- Fixed critical `MODEL_ALIASES` import error in `anthropic_runner.py`
+- Consolidated duplicate `MODEL_REGISTRY` between `config.py` and `__init__.py`
+- Standardized model naming with consistent versioning (e.g., `claude-3-7-sonnet-20250219`)
+- Unified dev log file naming to `dev_log-YYYY-MM-DD HH:MM:SS.md` format
+- Removed duplicate `score_logs` directory, standardized on `scored_logs`
+- Fixed documentation file naming (`scoring rules.md` → `scoring_rules.md`)
+
 ### 2025-06-06: claude-assist Integration Experiment  
 **Decision**: Removed claude-assist after realizing redundancy
 **Rationale**: Claude Code can maintain context directly without additional tool complexity
