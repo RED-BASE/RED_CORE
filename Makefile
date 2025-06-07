@@ -16,10 +16,6 @@ test:
 help:
 	@echo "Available targets:"
 	@echo "  run        - Run experiments interactively (dual evaluation enabled by default)"
-	@echo "  run-auto   - Alias for run (kept for compatibility)"
-	@echo "  evaluate   - Run dual evaluation on LOG_DIR"
-	@echo "  score      - Run automated scoring on LOG_DIR"
-	@echo "  llm-eval   - Run LLM evaluation on LOG_DIR"
 	@echo "  test       - Run test suite"
 	@echo "  log        - Create development log entry"
 	@echo "  help       - Show this help"
