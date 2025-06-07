@@ -102,7 +102,7 @@ def get_available_prompts(pattern, base_path="data/prompts"):
     """Get available prompt files matching pattern."""
     if Path(base_path).exists():
         files = list(Path(base_path).rglob(pattern))
-        return [str(f) for f in files]  # Keep full path
+        return sorted([str(f) for f in files])  # Keep full path, sorted
     return []
 
 def get_available_personas():
@@ -190,11 +190,11 @@ def configure_experiment_interactively():
     
     console.print()
     
-    # User prompts  
-    usr_prompts_options = get_available_prompts("**/usr*.yaml")
+    # User prompts - search in all subfolders
+    usr_prompts_options = get_available_prompts("**/*.yaml", "data/prompts/user")
     if experiment:
         # Look for experiment-specific prompts first
-        exp_prompts = get_available_prompts(f"**/*{experiment}*.yaml")
+        exp_prompts = get_available_prompts(f"**/*{experiment}*.yaml", "data/prompts/user")
         if exp_prompts:
             console.print(f"[green]Found {len(exp_prompts)} experiment-specific prompts[/green]")
             usr_prompts_options = exp_prompts + usr_prompts_options
@@ -292,6 +292,7 @@ def run_exploit_yaml(
     user_turn_callback=None,
     experiment_code: str = DEFAULT_EXPERIMENT_CODE,
     quiet: bool = False,
+    log_dir: Optional[str] = None,
 ) -> dict:
     """Run an exploit YAML file and return the generated log.
 
@@ -396,6 +397,9 @@ def run_exploit_yaml(
         else:
             header, body = "", raw
         prompt_body = body.strip()
+        # Remove unnecessary quotes from YAML literal blocks  
+        if prompt_body.startswith('"') and prompt_body.endswith('"'):
+            prompt_body = prompt_body[1:-1]
         turn_index = len(log_output.turns) + log_output.turn_index_offset
         ctx = ConversationContext(
             rendered_prompt=prompt_body,
@@ -455,7 +459,9 @@ def run_exploit_yaml(
     log_dict = log_output.model_dump()
     log_hash = compute_log_hash(log_dict)
     log_output.log_hash = log_hash
-    log_path = Path(LOG_DIR) / f"{log_output.isbn_run_id}.json"
+    # Use provided log_dir or fall back to global LOG_DIR
+    target_log_dir = log_dir if log_dir else LOG_DIR
+    log_path = Path(target_log_dir) / f"{log_output.isbn_run_id}.json"
     log_session(str(log_path), log_output)
     if not quiet:
         print(f"[INFO] Log saved to: {log_path}")
@@ -597,6 +603,7 @@ def main():
                     user_turn_callback=update_turn_counter,
                     experiment_code=args.experiment_code,
                     quiet=True,
+                    log_dir=str(log_dir_path),
                 )
                 with lock:
                     successes.append((f"{model}({rep+1})", result.isbn_run_id, str(log_dir_path / f"{result.isbn_run_id}.json")))
