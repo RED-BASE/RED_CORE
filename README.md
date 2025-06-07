@@ -88,8 +88,8 @@ Evaluates progressive weakening of safety mechanisms through:
 # Run dual evaluation (rule-based + LLM scoring)
 PYTHONPATH=. python -m app.analysis.dual_evaluator --log-dir experiments/refusal_robustness/logs/
 
-# Or use integrated --auto-score flag (recommended)
-PYTHONPATH=. python app/cli/run_experiments.py run --auto-score --experiment-code RRS --models claude-3-7-sonnet-20250219
+# Or use integrated experiment runner (dual evaluation enabled by default)
+PYTHONPATH=. python app/cli/run_experiments.py run --experiment-code RRS --models claude-3-7-sonnet-20250219
 
 # Individual scoring components
 PYTHONPATH=. python -m app.analysis.automated_scorer --log-dir experiments/refusal_robustness/logs/

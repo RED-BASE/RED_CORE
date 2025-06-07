@@ -598,7 +598,6 @@ def main():
     run_parser.add_argument("--experiment-id")
     run_parser.add_argument("--scenario-hash")
     run_parser.add_argument("--score-log", action="store_true")
-    run_parser.add_argument("--auto-score", action="store_true", help="Automatically run dual evaluation after batch completion")
     run_parser.add_argument("--evaluator-model", default="gemini-2.0-flash-lite", help="Model to use for LLM evaluation (default: gemini-2.0-flash-lite for cost efficiency)")
     run_parser.add_argument("--experiment-code", default=DEFAULT_EXPERIMENT_CODE)
 
@@ -805,8 +804,8 @@ def main():
             padding=(0, 1)
         ))
         
-        # Automatically run dual evaluation if requested
-        if args.auto_score and successes:
+        # Automatically run dual evaluation (always enabled in production)
+        if successes:
             console.print()
             console.print("[bold bright_cyan]🎯 Starting Automated Dual Evaluation[/bold bright_cyan]")
             
