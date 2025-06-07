@@ -1,90 +1,83 @@
 # analysis/
 
-Scripts and tools for log analysis, summarization, and review.
+Scripts and tools for log analysis, evaluation, and review.
 
 ## 🎯 Quick Start
 
-Use the unified analysis CLI for all analysis tasks:
+Use the dual evaluator for comprehensive automated analysis:
 
 ```bash
-# Run complete analysis for an experiment
-poetry run python app/analysis/analysis_cli.py full-analysis --experiment refusal_robustness
+# Run dual evaluation (automated + LLM scoring) on experiment logs
+PYTHONPATH=. python -m app.analysis.dual_evaluator --log-dir experiments/refusal_robustness/logs/
 
-# Quick insights from existing flat logs
-poetry run python app/analysis/analysis_cli.py quick-insights
+# Run dual evaluation with custom LLM evaluator model
+PYTHONPATH=. python -m app.analysis.dual_evaluator --log-dir experiments/refusal_robustness/logs/ --evaluator-model gemini-2.0-flash-lite
 
-# Extract metadata from raw logs  
-poetry run python app/analysis/analysis_cli.py extract-metadata --log-dir experiments/refusal_robustness/logs/
+# Run automated scoring only
+PYTHONPATH=. python -m app.analysis.automated_scorer --log-dir experiments/refusal_robustness/logs/ --standard red_core_custom
 
-# Interactive review tool
-poetry run python app/analysis/analysis_cli.py review --log-dir experiments/refusal_robustness/logs/
+# Run LLM evaluation only
+PYTHONPATH=. python -m app.analysis.llm_evaluator --log-dir experiments/refusal_robustness/logs/ --evaluator-model claude-3-7-sonnet
 
-# Automated safety scoring (NEW!)
-poetry run python app/analysis/analysis_cli.py score --log-dir experiments/refusal_robustness/logs/ --standard mlcommons_ailuminate
-
-# Full analysis with automated scoring
-poetry run python app/analysis/analysis_cli.py full-analysis --experiment refusal_robustness --include-scoring
+# Or use the integrated --auto-score flag in run_experiments.py (recommended)
+PYTHONPATH=. python app/cli/run_experiments.py run --auto-score --experiment-code RRS --models claude-3-7-sonnet-20250219
 ```
 
 ## 📁 Tools Overview
 
-### `analysis_cli.py` - **Unified Interface** 
-Coordinates all analysis tools through a single command-line interface. **Use this for all analysis tasks.**
+### `dual_evaluator.py` - **Primary Analysis Tool** ⭐
+Combined rule-based + LLM evaluation system:
+- **Dual scoring methodology**: Automated patterns + LLM reasoning
+- **In-place log enrichment**: Updates original logs with embedded scoring
+- **Method agreement analysis**: Compares scoring approaches for validation
+- **Cost-optimized**: Default gemini-2.0-flash-lite evaluator (~90% cost savings)
+- **Research-grade output**: Publication-ready logs with complete provenance
 
-### `log_insight_report.py` - **Quick Analytics**
-Fast statistical overview of experiment results:
-- Model performance comparisons
-- Drift pattern analysis  
-- Anomaly detection
-
-### `analyze.py` - **Metadata Extraction**
-Extracts structured metadata from raw experiment logs:
-- Run summaries and statistics
-- Alignment pattern detection
-- System prompt drift analysis
-
-### `roller.py` - **Data Aggregation**
-Rolls up turn-level data into run-level and experiment-level summaries:
-- Trajectory classification (stable, escalating, snap, backslide)
-- Aggregate statistics
-- Cross-experiment comparisons
-
-### `enhanced_review_tool.py` - **Interactive Review**
-Comprehensive manual review interface:
-- Color-coded turn-by-turn analysis
-- Interactive scoring and annotation
-- Export capabilities for scored data
-
-### `automated_scorer.py` - **Industry-Standard Automated Scoring** ⭐
-Automated safety evaluation using industry benchmarks:
-- **MLCommons AILuminate** standard support
-- Multi-pattern refusal detection (full/partial/none)
+### `automated_scorer.py` - **Rule-Based Evaluation**
+Industry-standard automated safety scoring:
+- **MLCommons AILuminate** patterns and RED_CORE custom rules
+- Multi-pattern refusal detection (1=hard refusal, 2=partial, 3=full compliance)
 - Hazard category classification (12+ categories)
-- Ensemble evaluation approach
-- Batch processing for efficiency
-- Confidence scoring and reasoning
+- Fast, deterministic scoring with confidence metrics
+
+### `llm_evaluator.py` - **LLM-Based Evaluation**
+Nuanced contextual evaluation using language models:
+- **Model-agnostic**: Supports Claude, GPT, and Gemini evaluators
+- Contextual assessment with detailed reasoning
+- Confidence scoring and drift analysis
+- Async processing with rate limiting
 
 ## 🔄 Analysis Workflow
 
 1. **Run Experiments** → Raw JSON logs saved to `experiments/{name}/logs/`
-2. **Extract Metadata** → Structured summaries and statistics  
-3. **Flatten Data** → Turn-level CSV for detailed analysis
-4. **Roll Up Data** → Run-level and experiment-level aggregations
-5. **Generate Insights** → Quick statistical reports
-6. **Manual Review** → Interactive scoring via enhanced review tool
-7. **Export Results** → Scored logs to `experiments/{name}/scored_logs/`
+2. **Automated Dual Evaluation** → Rule-based + LLM scoring embedded in logs
+3. **Method Agreement Analysis** → Compare automated vs LLM scoring approaches
+4. **iOS red_score App Review** → Human validation and scoring via mobile interface
+5. **Comparative Analysis** → Analyze automated vs human scoring patterns for research insights
+6. **Research Publication** → Comprehensive methodology with dual scoring validation
 
 ## 📊 Data Flow
 
 ```
-Raw Logs (JSON) 
-    ↓ extract-metadata
-Summary Data (CSV)
-    ↓ flatten (via core/flattener.py)  
-Flat Logs (CSV)
-    ↓ roll-up
-Rolled Data (CSV)
-    ↓ quick-insights + review
-Analysis Reports + Scored Logs
-``` 
+Raw Logs (JSON)
+    ↓ dual_evaluator.py
+Enriched Logs (JSON) + Analysis Reports
+    ↓ red_score iOS app
+Human-Scored Logs (JSON)
+    ↓ comparative analysis
+Research-Ready Dataset with Dual Methodology
+```
 
+## 🎯 Production Integration
+
+The analysis pipeline integrates seamlessly with experiment runs:
+
+```bash
+# Single command: experiments → scoring → ready for human review
+PYTHONPATH=. python app/cli/run_experiments.py run \
+  --auto-score \
+  --experiment-code RRS \
+  --models claude-3-7-sonnet-20250219 gpt-4.1
+```
+
+Output: Fully scored logs ready for iOS app human validation and research publication.

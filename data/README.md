@@ -1,15 +1,19 @@
 # data/
 
-Project data, logs, and prompt artifacts.
+Project data, documentation, and prompt artifacts.
 
-- **logs/**: Raw and processed logs, including review sessions.
-  - **review_sessions/**: Session-specific logs and summaries.
-  - **raw/**: Raw log files (JSON).
-- **processed/**: Cleaned and processed data files (CSV).
-- **flattened/**: Flattened log files (CSV).
-- **rolled/**: Placeholder for rolled-up data.
-- **summary/**: Summary CSVs of logs and drift metrics.
-- **personas/**: YAML files defining user/persona profiles for experiments.
-- **prompts/**: Prompt templates and artifacts.
-  - **system/**: System prompt YAMLs.
-  - **user/**: User prompt YAMLs, organized by experiment type. 
+- **Claude.md**: Development context and architecture documentation
+- **model_registry.md**: Comprehensive model specifications and capabilities
+- **prompts/**: Prompt templates and personas for experiments
+  - **system/**: System prompt YAMLs for different experimental conditions
+  - **user/**: User prompt template (experiment-specific prompts moved to experiments/ directories)
+  - **personas/**: YAML files defining user personas for adversarial testing
+
+## Directory Structure
+
+Experiment logs are now organized within each experiment directory:
+- Raw logs: `experiments/{experiment_name}/logs/`
+- Dual-evaluated logs: `experiments/{experiment_name}/dual_evaluated/` 
+- Human-reviewed logs: `experiments/{experiment_name}/scored_logs/`
+
+This structure maintains complete data lineage and makes experiments self-contained for research sharing.

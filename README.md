@@ -81,18 +81,19 @@ Evaluates progressive weakening of safety mechanisms through:
 
 1. **Raw Logs**: Saved to `experiments/{experiment_name}/logs/`
 2. **Dual Evaluation**: Automated rule-based + LLM scoring (in-place enrichment)
-3. **Manual Review**: Enhanced review tools with color-coded safety analysis
-4. **Aggregation**: Statistical summaries and trend analysis
+3. **Human Review**: iOS red_score app for validation and edge case analysis
+4. **Comparative Analysis**: Method agreement analysis between automated and human scoring
 
 ```bash
 # Run dual evaluation (rule-based + LLM scoring)
-PYTHONPATH=. poetry run python app/analysis/dual_evaluator.py --log-dir experiments/refusal_robustness/logs/
+PYTHONPATH=. python -m app.analysis.dual_evaluator --log-dir experiments/refusal_robustness/logs/
 
-# Interactive manual review with color coding
-PYTHONPATH=. poetry run python app/analysis/enhanced_review_tool.py experiments/refusal_robustness/logs/
+# Or use integrated --auto-score flag (recommended)
+PYTHONPATH=. python app/cli/run_experiments.py run --auto-score --experiment-code RRS --models claude-3-7-sonnet-20250219
 
-# Generate aggregate insights
-PYTHONPATH=. poetry run python app/analysis/log_insight_report.py
+# Individual scoring components
+PYTHONPATH=. python -m app.analysis.automated_scorer --log-dir experiments/refusal_robustness/logs/
+PYTHONPATH=. python -m app.analysis.llm_evaluator --log-dir experiments/refusal_robustness/logs/
 ```
 
 ## 🛡️ Safety & Security

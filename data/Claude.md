@@ -70,34 +70,24 @@ log_utils.py
 ### [ANALYSIS PIPELINE]
 **`app/analysis/`** - Post-experiment analysis tools
 ```
-enhanced_review_tool.py
-├─ Dependencies: Core logging utilities
-├─ Purpose: Manual review interface for experiment results
-├─ Key Features: Color-coded output, containment analysis
-└─ Notes: Requires manual review for safety validation
-
 automated_scorer.py
 ├─ Dependencies: app.config.scoring_config
 ├─ Purpose: Rule-based automated drift/refusal scoring
 ├─ Key Features: Pattern-matching, hazard classification
 └─ Notes: Fast, deterministic scoring with industry-standard patterns
 
-llm_evaluator.py [NEW]
+llm_evaluator.py
 ├─ Dependencies: API runners, log schema
 ├─ Purpose: LLM-based nuanced evaluation of experiment results
 ├─ Key Features: Contextual assessment, confidence scoring, detailed reasoning
-└─ Notes: Async processing, model-agnostic (Claude/GPT), integrates with LLMEvaluation schema
+└─ Notes: Async processing, model-agnostic (Claude/GPT/Gemini), integrates with LLMEvaluation schema
 
-dual_evaluator.py [NEW]
+dual_evaluator.py
 ├─ Dependencies: automated_scorer, llm_evaluator
 ├─ Purpose: Combined rule-based + LLM evaluation with comparison metrics
 ├─ Key Features: Method agreement analysis, batch processing, summary reports
 ├─ Output Behavior: Updates original logs in-place via llm_evaluation schema fields
 └─ Notes: Maintains data lineage by enriching existing experiment files
-
-log_insight_report.py
-├─ Purpose: Aggregate analysis across experiments
-└─ Notes: Generates summary reports and trends
 ```
 
 ### [SAFETY & CONFIGURATION]
@@ -221,12 +211,13 @@ experiments/{experiment}/
 - Cleaned generated CSV outputs that shouldn't be in git
 - Preserved PORTFOLIO_ARTIFACTS (portfolio work, gitignored)
 - Streamlined to essential code and configuration only
+- **MAJOR CLEANUP (2025-06-07)**: Removed 9 obsolete files - analysis_cli.py, analyze.py, enhanced_review_tool.py, log_insight_report.py, roller.py, flattener.py, and empty data directories (flattened/, rolled/, summary/)
 
 **3. Auto-Scoring Integration**:
 - Added `--auto-score` flag for automatic dual evaluation after batch completion
 - Integrated dual evaluator into batch run pipeline for seamless workflow
 - Rich progress display with evaluation metrics and confidence reporting
-- End-to-end automation: experiments → scoring → ready for red_score blind review
+- End-to-end automation: experiments → scoring → ready for automated evaluation
 
 **4. Cost-Optimized LLM Evaluation**:
 - Added Google Gemini support to LLM evaluator (previously Anthropic/OpenAI only)
@@ -240,6 +231,7 @@ experiments/{experiment}/
 - **Clean structure**: Logical experiment organization with proper data lineage
 - **Research-grade output**: Publication-ready logs with complete provenance
 - **Scalable evaluation**: Can now afford to evaluate hundreds of experiments
+- **Streamlined codebase**: 33 essential files, removed manual review workflows
 
 **Example Production Command**:
 ```bash
@@ -247,7 +239,7 @@ PYTHONPATH=. python app/cli/run_experiments.py run \
   --auto-score \
   --experiment-code RRS \
   --models claude-3-7-sonnet-20250219 gpt-4.1
-# Output: Fully scored logs ready for blind human review
+# Output: Fully scored logs ready for automated evaluation
 ```
 
 ### 2025-06-07: External Presentation & Career Strategy Development

@@ -18,17 +18,30 @@
 ## Directory Structure
 
 - `README.md` — *This file. Must be complete and up-to-date.*
+- `prompts/` — Experiment-specific user prompts (YAML files)
+- `logs/` — Raw experiment logs (JSON format)
+- `dual_evaluated/` — Dual-evaluated logs with automated + LLM scoring
+- `scored_logs/` — Human-reviewed logs via iOS red_score app
 - `legacy/` — All deprecated, superseded, or legacy artifacts/docs.
-- `logs/` — Raw and processed logs (experiment-specific).
-- `csvs/` — Results, intermediate tables, or metrics (experiment-specific).
 - *(Add other subfolders as needed, but explain why)*
 
-## Log Workflow
+## Analysis Workflow
 
-- Raw logs are saved to `logs/` inside each experiment folder.
-- Scored logs are uploaded to `scored_logs/` via the iOS scoring app and merged into the repo via pull request.
-- Each log includes robust error handling, per-turn token counts, latency, and a unified summary output at the end of each run.
-- The review process is manual (iOS or desktop), and all scored logs are merged via PR for full auditability.
+1. **Run Experiments** → Raw JSON logs saved to `logs/`
+2. **Automated Dual Evaluation** → Rule-based + LLM scoring, results in `dual_evaluated/`
+3. **Method Agreement Analysis** → Compare automated vs LLM scoring approaches
+4. **iOS red_score App Review** → Human validation and scoring, results in `scored_logs/`
+5. **Comparative Analysis** → Analyze automated vs human scoring patterns for research insights
+6. **Research Publication** → Comprehensive methodology with dual scoring validation
+
+### Production Command
+```bash
+# Single command: experiments → scoring → ready for human review
+PYTHONPATH=. python app/cli/run_experiments.py run \
+  --auto-score \
+  --experiment-code XXX \
+  --models claude-3-7-sonnet-20250219 gpt-4.1
+```
 
 ## Provenance & Status
 
@@ -43,13 +56,14 @@
 
 ## Results & Findings
 
-> (Link to main result CSVs, logs, charts, and summarize findings here)
+> (Link to main result files, logs, analysis, and summarize findings here)
 
 ## Notes
 
 - If you move or archive any file, update this README.
 - Do not leave stray files at the top level—put all superseded or unused artifacts in `legacy/`.
+- All scored logs from iOS app are merged via PR for full auditability.
 
 ---
 
-**Template maintained by [YOUR PROJECT NAME]. All changes to the template must be reviewed by a project maintainer.**
+**Template maintained by RED_CORE. All changes to the template must be reviewed by a project maintainer.**
