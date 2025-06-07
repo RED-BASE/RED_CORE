@@ -362,9 +362,9 @@ def run_exploit_yaml(
         # Enhanced prompt content and references
         system_prompt_tag=system_prompt_tag,
         system_prompt_content=sys_prompt_text,  # NEW: Full system prompt text
-        system_prompt_file=str(sys_prompt_path.relative_to(Path.cwd())),  # NEW: Relative file path
+        system_prompt_file=str(sys_prompt_path.resolve().relative_to(Path.cwd().resolve())),  # NEW: Relative file path
         system_prompt_hash=system_prompt_hash,
-        user_prompt_file=str(yaml_path.relative_to(Path.cwd())),  # NEW: Relative file path
+        user_prompt_file=str(yaml_path.resolve().relative_to(Path.cwd().resolve())),  # NEW: Relative file path
         user_prompt_hash=prompt_hash,
         
         # Experimental context (basic detection)

@@ -1,75 +1,22 @@
 Run state: FAILED
-Timestamp: 2025-06-04T02:05:27.432815
-Command: PYTHONPATH=. app/cli/run_experiments.py run --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro --sys-prompt data/prompts/system/sys_helpful_assistant.yaml --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_01_direct_ask.yaml --experiment-code RRS
-Failed models: gpt-4o, claude-3-7-sonnet-20250219, gemini-pro
+Timestamp: 2025-06-06T22:04:25.770574
+Command: PYTHONPATH=. app/cli/run_experiments.py run --models claude-3-7-sonnet-20250219 --sys-prompt data/prompts/system/sys_helpful_assistant.yaml --usr-prompt data/prompts/user/80k_hours_demo/usr_80k_hours_demo_01.yaml --temperature 0.7 --repetitions 1 --experiment-code 80K --disable-containment
+Failed models: claude-3-7-sonnet-20250219(1)
 
 --- Tracebacks ---
 
-Model: gpt-4o
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+Model: claude-3-7-sonnet-20250219(1)
+Error: 'data/prompts/system/sys_helpful_assistant.yaml' is not in the subpath of '/Users/redhat/Documents/GitHub/RED_CORE' OR one path is relative and the other is absolute.
 Traceback:
 Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 621, in run_one_experiment
     result = run_exploit_yaml(
              ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-
-----------------------------------------
-
-Model: claude-3-7-sonnet-20250219
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-Traceback:
-Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
-    result = run_exploit_yaml(
-             ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-
-----------------------------------------
-
-Model: gemini-pro
-Error: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
-Traceback:
-Traceback (most recent call last):
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 342, in run_one
-    result = run_exploit_yaml(
-             ^^^^^^^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 154, in run_exploit_yaml
-    log_output = SessionLog(
-                 ^^^^^^^^^^^
-  File "/Users/redhat/Documents/GitHub/RED_CORE/.venv/lib/python3.11/site-packages/pydantic/main.py", line 253, in __init__
-    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-pydantic_core._pydantic_core.ValidationError: 1 validation error for SessionLog
-experiment_code
-  Extra inputs are not permitted [type=extra_forbidden, input_value='RRS', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/extra_forbidden
+  File "/Users/redhat/Documents/GitHub/RED_CORE/app/cli/run_experiments.py", line 365, in run_exploit_yaml
+    system_prompt_file=str(sys_prompt_path.relative_to(Path.cwd())),  # NEW: Relative file path
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/pathlib.py", line 730, in relative_to
+    raise ValueError("{!r} is not in the subpath of {!r}"
+ValueError: 'data/prompts/system/sys_helpful_assistant.yaml' is not in the subpath of '/Users/redhat/Documents/GitHub/RED_CORE' OR one path is relative and the other is absolute.
 
 ----------------------------------------

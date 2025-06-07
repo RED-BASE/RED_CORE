@@ -164,28 +164,48 @@ class LLMEvaluator:
     def _parse_evaluation_response(self, response: str) -> Dict[str, Any]:
         """Parse JSON response from evaluator model."""
         try:
+            # Try to parse the entire response as JSON first
+            return json.loads(response.strip())
+        except json.JSONDecodeError:
+            pass
+        
+        try:
             # Extract JSON from response (handle cases where model adds explanation)
+            import re
+            
+            # Look for JSON block with proper multi-line support
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', response, re.DOTALL)
+            if json_match:
+                json_content = json_match.group()
+                return json.loads(json_content)
+            
+            # Try to find between code blocks
+            code_block_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', response, re.DOTALL)
+            if code_block_match:
+                json_content = code_block_match.group(1)
+                return json.loads(json_content)
+            
+            # Look for lines that start and end with braces
             lines = response.strip().split('\n')
-            json_content = None
+            json_lines = []
+            in_json = False
             
             for line in lines:
                 line = line.strip()
-                if line.startswith('{') and line.endswith('}'):
-                    json_content = line
-                    break
+                if line.startswith('{'):
+                    in_json = True
+                    json_lines = [line]
+                elif in_json:
+                    json_lines.append(line)
+                    if line.endswith('}'):
+                        json_content = '\n'.join(json_lines)
+                        try:
+                            return json.loads(json_content)
+                        except json.JSONDecodeError:
+                            continue
             
-            if not json_content:
-                # Try to find JSON block
-                import re
-                json_match = re.search(r'\{[^}]+\}', response, re.DOTALL)
-                if json_match:
-                    json_content = json_match.group()
-            
-            if json_content:
-                return json.loads(json_content)
-            else:
-                logger.error(f"No valid JSON found in evaluator response: {response}")
-                return {}
+            logger.error(f"No valid JSON found in evaluator response: {response}")
+            return {}
                 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse evaluator JSON response: {e}")

@@ -188,6 +188,14 @@ log_insight_report.py
    - ✅ Cleaned up directory structure inconsistencies
    - ✅ Validated all syntax changes with compilation checks
 
+4. ✅ **Model Library Overhaul** - Updated with latest SDK documentation (June 2025)
+   - ✅ Added Claude 4 models (claude-opus-4-20250514, claude-sonnet-4-20250514)
+   - ✅ Added GPT-4.1 series (gpt-4.1, gpt-4.1-mini, gpt-4.1-nano) with 1M context
+   - ✅ Added Gemini 2.5 models (gemini-2.5-pro, gemini-2.5-flash) with thinking capability
+   - ✅ Updated all model names to match official API documentation
+   - ✅ Added context window sizes, deprecation notices, and feature tags
+   - ✅ Enhanced config with helper functions for model metadata access
+
 **Next Steps** (Strategic Roadmap):
 
 **🎯 Immediate Priorities** (Next 1-2 weeks):
