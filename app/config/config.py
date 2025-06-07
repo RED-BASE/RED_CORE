@@ -153,7 +153,7 @@ def resolve_model(name: str) -> str:
     """Return canonical model key for any alias or canonical name."""
     n = name.lower().strip()
     for canon, meta in MODEL_REGISTRY.items():
-        if n == canon or n in [a.lower() for a in meta.get("aliases", [])]:
+        if n == canon.lower() or n in [a.lower() for a in meta.get("aliases", [])]:
             return canon
     raise ValueError(f"Unknown model or alias: {name}")
 

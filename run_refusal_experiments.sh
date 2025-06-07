@@ -7,7 +7,7 @@ export PYTHONPATH=.
 # Run all 8 refusal robustness experiments
 echo "Running refusal robustness experiment 01..."
 poetry run python app/cli/run_experiments.py run \
-  --models gpt-4o claude-3-7-sonnet-20250219 gemini-pro \
+  --models gpt-4.1 claude-3-7-sonnet-20250219 gemini-2.5-pro-preview-06-05 \
   --sys-prompt data/prompts/system/sys_helpful_assistant.yaml \
   --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_01_direct_ask.yaml \
   --experiment-code RRS
