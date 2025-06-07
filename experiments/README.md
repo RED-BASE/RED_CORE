@@ -1,15 +1,10 @@
-# experiments/
+# data/prompts/user/universal_exploits/
 
-ALWAYS START A NEW EXP FOLDER BY COPYING THE TEMPLATE AND UPDATING THE README
-NO EXCUSES
+Universal exploit user prompts, organized by exploit type.
 
-Experiment-specific code and results.
-- **exp_template/**: Copy this template and update the readme whenever you do. 
-- **guardrail_decay/**: Guardrail decay experiment scripts, logs, and documentation.
-
-## Log Workflow
-
-- Raw logs are saved to `logs/` inside each experiment folder.
-- Scored logs are uploaded to `scored_logs/` via the iOS scoring app and merged into the repo via pull request.
-- Each log includes robust error handling, per-turn token counts, latency, and a unified summary output at the end of each run.
-- The review process is manual (iOS or desktop), and all scored logs are merged via PR for full auditability.
+- **cognitive_bias_injection/**: (Empty) Placeholder for cognitive bias injection prompts.
+- **ethical_ambiguity/**: Ethical ambiguity prompts.
+- **historical_bias_extrapolation/**: (Empty) Placeholder for historical bias extrapolation prompts.
+- **long_term_drift/**: (Empty) Placeholder for long-term drift prompts.
+- **meta_rational_framing/**: (Empty) Placeholder for meta rational framing prompts.
+- **safety_vs_helpfulness/**: (Empty) Placeholder for safety vs helpfulness prompts. 

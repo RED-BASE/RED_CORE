@@ -41,20 +41,25 @@ poetry run python app/cli/run_experiments.py --help
 
 ### Running Your First Experiment
 ```bash
-# Run a refusal robustness test
-poetry run python app/cli/run_experiments.py run \
-  --models gpt-4o claude-3-7-sonnet-20250219 \
+# Interactive mode (recommended)
+make run
+
+# Or run a specific refusal robustness test
+PYTHONPATH=. poetry run python app/cli/run_experiments.py run \
+  --models gpt-4.1 claude-opus-4-20250514 \
   --sys-prompt data/prompts/system/sys_helpful_assistant.yaml \
   --usr-prompt data/prompts/user/refusal/refusal_robustness_misinformation_tweet_01_direct_ask.yaml \
   --experiment-code RRS
 ```
 
-### Create New Experiments
+### Quick Setup
 ```bash
-poetry run run-experiments new \
-  --name my_experiment \
-  --contributors "researcher@example.com" \
-  --purpose "Testing new attack vector"
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys (OpenAI, Anthropic, Google)
+
+# Test installation with sample experiment
+make run
 ```
 
 ## 🧪 Experiment Types
@@ -75,16 +80,19 @@ Evaluates progressive weakening of safety mechanisms through:
 ## 📊 Analysis Workflow
 
 1. **Raw Logs**: Saved to `experiments/{experiment_name}/logs/`
-2. **Analysis**: Use tools in `app/analysis/` for insights
-3. **Scoring**: Manual review via iOS app → `scored_logs/`
-4. **Aggregation**: Automated summaries and trend analysis
+2. **Dual Evaluation**: Automated rule-based + LLM scoring (in-place enrichment)
+3. **Manual Review**: Enhanced review tools with color-coded safety analysis
+4. **Aggregation**: Statistical summaries and trend analysis
 
 ```bash
-# Generate insights from recent experiments
-poetry run python app/analysis/log_insight_report.py
+# Run dual evaluation (rule-based + LLM scoring)
+PYTHONPATH=. poetry run python app/analysis/dual_evaluator.py --log-dir experiments/refusal_robustness/logs/
 
-# Create comprehensive analysis
-poetry run python app/analysis/enhanced_review_tool.py
+# Interactive manual review with color coding
+PYTHONPATH=. poetry run python app/analysis/enhanced_review_tool.py experiments/refusal_robustness/logs/
+
+# Generate aggregate insights
+PYTHONPATH=. poetry run python app/analysis/log_insight_report.py
 ```
 
 ## 🛡️ Safety & Security
@@ -126,13 +134,13 @@ Write operations are **blocked** in all scripts except:
 
 ## 📈 Model Support
 
-Currently supported APIs:
-- **OpenAI**: GPT-4, GPT-3.5-turbo variants
-- **Anthropic**: Claude 3 (Haiku, Sonnet, Opus)  
-- **Google**: Gemini Pro, Gemini Pro Vision
-- **Local**: llama.cpp integration
+Currently supported APIs (16 models available):
+- **OpenAI**: GPT-4.1 series (flagship with 1M context), GPT-4o variants
+- **Anthropic**: Claude 4 (Opus, Sonnet), Claude 3.7 Sonnet, Claude 3.5 series  
+- **Google**: Gemini 2.5 (Pro, Flash with thinking), Gemini 2.0 Flash, Gemini 1.5 series
+- **Local**: Mistral 7B via llama.cpp integration
 
-Add new models via `app/config/config.py` model registry.
+All models updated to latest SDK versions (June 2025). See `data/model_registry.md` for complete specifications.
 
 ## 🤝 Contributing
 
@@ -143,11 +151,13 @@ Add new models via `app/config/config.py` model registry.
 
 ## 📝 Logging
 
-Each experiment produces structured JSON logs containing:
-- Per-turn model responses and metadata
-- Token usage and latency metrics  
-- Drift scores and safety annotations
-- Complete prompt provenance chain
+Each experiment produces research-ready structured JSON logs containing:
+- Complete conversation turns with model responses
+- Full system prompt content and file references  
+- Token usage, latency, and API metadata
+- Dual evaluation scores (rule-based + LLM assessment)
+- Provenance chain for full reproducibility
+- Embedded experiment methodology and parameters
 
 ## ⚠️ Research Ethics
 
