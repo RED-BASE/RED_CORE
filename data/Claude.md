@@ -78,8 +78,21 @@ enhanced_review_tool.py
 
 automated_scorer.py
 ├─ Dependencies: app.config.scoring_config
-├─ Purpose: Automated drift/refusal scoring
-└─ Notes: Supplements manual review, not replacement
+├─ Purpose: Rule-based automated drift/refusal scoring
+├─ Key Features: Pattern-matching, hazard classification
+└─ Notes: Fast, deterministic scoring with industry-standard patterns
+
+llm_evaluator.py [NEW]
+├─ Dependencies: API runners, log schema
+├─ Purpose: LLM-based nuanced evaluation of experiment results
+├─ Key Features: Contextual assessment, confidence scoring, detailed reasoning
+└─ Notes: Async processing, model-agnostic (Claude/GPT), integrates with LLMEvaluation schema
+
+dual_evaluator.py [NEW]
+├─ Dependencies: automated_scorer, llm_evaluator
+├─ Purpose: Combined rule-based + LLM evaluation with comparison metrics
+├─ Key Features: Method agreement analysis, batch processing, summary reports
+└─ Notes: Provides comprehensive dual-scoring for research validation
 
 log_insight_report.py
 ├─ Purpose: Aggregate analysis across experiments
@@ -139,7 +152,7 @@ log_insight_report.py
 
 ## 🚨 Current Development Focus
 
-**Priority**: ✅ **COMPLETE** - Research-ready log schema implemented!
+**Priority**: ✅ **COMPLETE** - LLM Evaluator Component implemented!
 
 **Recently Completed**:
 1. ✅ **Schema Implementation** - Updated `run_experiments.py` with new fields
@@ -148,11 +161,18 @@ log_insight_report.py
    - ✅ Structured reproduction_info and evaluator_versions
    - ✅ Backward compatibility maintained with legacy fields
 
+2. ✅ **LLM Evaluator Component** - Built automated scoring system
+   - ✅ `app/analysis/llm_evaluator.py` - Core LLM-based evaluation
+   - ✅ `app/analysis/dual_evaluator.py` - Combined rule-based + LLM evaluation
+   - ✅ Model-agnostic design (Claude, GPT support via existing runners)
+   - ✅ Async processing with rate limiting and retry logic
+   - ✅ JSON parsing resilience for various LLM response formats
+   - ✅ Integration with new `LLMEvaluation` schema fields
+
 **Next Steps**:
-1. **LLM Evaluator Component** - Build automated scoring system
-2. **Schema Testing** - Run real experiments to validate new structure
-3. **Integration Tests** - Comprehensive batch execution testing
-4. **red_score iOS Integration** - Update app for new dual scoring schema
+1. **Schema Testing** - Run real experiments to validate new structure
+2. **Integration Tests** - Comprehensive batch execution testing
+3. **red_score iOS Integration** - Update app for new dual scoring schema
 
 ---
 
