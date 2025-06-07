@@ -43,6 +43,7 @@ from app.config import (
     get_model_code,
     get_model_vendor,
     get_model_snapshot_id,
+    list_available_models,
 )
 from app.core.context import ConversationContext, ConversationHistory
 from safety.containment import (
@@ -211,7 +212,7 @@ def configure_experiment_interactively():
     console.print()
     
     # Models
-    model_choices = ["gpt-4o", "claude-3-7-sonnet-20250219", "claude-3-opus", "gemini-pro", "gemini-1.5-pro"]
+    model_choices = list_available_models(include_deprecated=False)
     models = select_from_list(console, "Select Models", model_choices, allow_multiple=True)
     if not models:
         console.print("[yellow]No models selected.[/yellow]")
@@ -503,7 +504,7 @@ def main():
     new_parser.add_argument("--purpose", required=True)
 
     run_parser = subparsers.add_parser("run", help="Run experiment(s) with specified models and prompts.")
-    run_parser.add_argument("--models", nargs="+", default=["gpt-4o", "claude-3-opus", "gemini-pro"])
+    run_parser.add_argument("--models", nargs="+", default=["gpt-4.1", "claude-3-7-sonnet-20250219", "gemini-2.5-pro-preview-06-05"])
     run_parser.add_argument("--sys-prompt")
     run_parser.add_argument("--usr-prompt")
     run_parser.add_argument("--interactive", action="store_true", help="Use interactive configuration mode")
