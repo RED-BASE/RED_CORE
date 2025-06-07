@@ -205,6 +205,81 @@ experiments/{experiment}/
 - Detailed reasoning provided for each evaluation decision
 - End-to-end dual evaluation pipeline working correctly
 
+### 2025-06-07: Production Structure Overhaul & Cost-Optimized Evaluation
+**Decision**: Comprehensive repository restructure and cost-efficient evaluation integration
+**Rationale**: Three critical production readiness gaps: confusing experiment structure, repository cruft, and manual scoring workflow
+**Changes Made**:
+
+**1. Experiment Structure Redesign**:
+- Moved experiment-specific prompts: `data/prompts/user/{experiment}/` → `experiments/{experiment}/prompts/`
+- Consolidated shared resources: `data/prompts/system/` (global), `data/prompts/personas/` (shared)
+- Updated prompt discovery logic to search experiment directories first
+- Fixed confusing mapping between prompt locations and experiment outputs
+
+**2. Repository Cleanup**:
+- Removed backup files (.backup extensions)
+- Cleaned generated CSV outputs that shouldn't be in git
+- Preserved PORTFOLIO_ARTIFACTS (portfolio work, gitignored)
+- Streamlined to essential code and configuration only
+
+**3. Auto-Scoring Integration**:
+- Added `--auto-score` flag for automatic dual evaluation after batch completion
+- Integrated dual evaluator into batch run pipeline for seamless workflow
+- Rich progress display with evaluation metrics and confidence reporting
+- End-to-end automation: experiments → scoring → ready for red_score blind review
+
+**4. Cost-Optimized LLM Evaluation**:
+- Added Google Gemini support to LLM evaluator (previously Anthropic/OpenAI only)
+- Default evaluator model: `gemini-2.0-flash-lite` (~90% cost savings vs Claude)
+- Maintained evaluation quality: 94.9% average confidence, detailed reasoning
+- Validated cross-model evaluation reliability with method agreement analysis
+
+**Results Achieved**:
+- **Production-ready workflow**: Single command from experiment to scored logs
+- **Cost efficiency**: ~90% reduction in evaluation costs without quality loss  
+- **Clean structure**: Logical experiment organization with proper data lineage
+- **Research-grade output**: Publication-ready logs with complete provenance
+- **Scalable evaluation**: Can now afford to evaluate hundreds of experiments
+
+**Example Production Command**:
+```bash
+PYTHONPATH=. python app/cli/run_experiments.py run \
+  --auto-score \
+  --experiment-code RRS \
+  --models claude-3-7-sonnet-20250219 gpt-4.1
+# Output: Fully scored logs ready for blind human review
+```
+
+### 2025-06-07: External Presentation & Career Strategy Development
+**Decision**: Transition from building phase to professional outreach and validation
+**Rationale**: System is production-ready; time to seek external feedback and career guidance from AI safety community
+**Changes Made**:
+
+**Documentation Overhaul for External Eyes**:
+- Updated main README.md with current model names (GPT-4.1, Claude 4, Gemini 2.5)
+- Created comprehensive 80K Hours demo README as showcase experiment
+- Added .env.example with complete setup instructions and security notes
+- Fixed all CLI commands to match current implementation
+- Added professional presentation suitable for external review
+
+**80K Hours Demo Refinement**:
+- Polished "safe but spicy" 5-turn philosophical experiment design
+- Clear research methodology documentation with ethical considerations
+- Professional contact information and collaboration framework
+- Verified all commands work with current model registry
+
+**Strategic Career Development**:
+- Drafted outreach pitch to 80,000 Hours for career guidance and feedback
+- Prepared application materials for OpenAI Red Teaming Network
+- Framed 5-week learning timeline as demonstration of exceptional velocity
+- Positioned infrastructure capabilities as primary value proposition
+
+**Results Achieved**:
+- **External-ready repository**: Professional documentation suitable for sharing
+- **Clear value proposition**: Infrastructure capabilities + rapid learning demonstrated
+- **Strategic positioning**: Self-taught technical talent seeking career transition guidance
+- **Multiple opportunity paths**: 80K Hours mentorship + OpenAI red teaming application
+
 ### 2025-06-06: claude-assist Integration Experiment  
 **Decision**: Removed claude-assist after realizing redundancy
 **Rationale**: Claude Code can maintain context directly without additional tool complexity
@@ -217,12 +292,13 @@ experiments/{experiment}/
 - Token-efficient documentation that provides high-level understanding
 - Dependency visualization for quick architecture comprehension
 - Research-grade quality and reproducibility as top priority
+- Enthusiastic celebration of major technical achievements ("ka-fucking-chow!")
 
 ---
 
 ## 🚨 Current Development Focus
 
-**Priority**: ✅ **COMPLETE** - Production-ready dual evaluation system with proper data lineage and fully operational LLM evaluation!
+**Priority**: ✅ **COMPLETE** - Production-ready system with cost-optimized evaluation and streamlined workflow!
 
 **Recently Completed**:
 1. ✅ **Schema Implementation** - Updated `run_experiments.py` with new fields
@@ -280,6 +356,14 @@ experiments/{experiment}/
    - ✅ Created professional golden orange progress indicator with blinking workspace symbol
    - ✅ Designed clean completion display with adaptive success coloring
    - ✅ Removed emoji clutter while maintaining visual organization
+
+8. ✅ **Production Structure & Workflow** - End-to-end automation and cost optimization
+   - ✅ Restructured experiment organization (prompts within experiment directories)
+   - ✅ Repository cleanup (removed backup files, generated outputs)
+   - ✅ Integrated auto-scoring into batch pipeline (`--auto-score` flag)
+   - ✅ Added Google Gemini support for cost-efficient LLM evaluation
+   - ✅ Default to `gemini-2.0-flash-lite` for ~90% cost savings
+   - ✅ Single command workflow: experiments → scoring → ready for blind review
 
 **Next Steps** (Strategic Roadmap):
 

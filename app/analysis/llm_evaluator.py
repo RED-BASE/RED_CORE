@@ -120,6 +120,9 @@ class LLMEvaluator:
                 self.runner = AnthropicRunner(model_name=evaluator_model)
             elif vendor == "openai":
                 self.runner = OpenAIRunner(model_name=evaluator_model)
+            elif vendor == "google":
+                from app.api_runners.google_runner import GoogleRunner
+                self.runner = GoogleRunner(model_name=evaluator_model)
             else:
                 raise ValueError(f"Unsupported evaluator model vendor: {vendor}")
         except ValueError:
@@ -128,6 +131,9 @@ class LLMEvaluator:
                 self.runner = AnthropicRunner(model_name=evaluator_model)
             elif "gpt" in evaluator_model.lower() or "openai" in evaluator_model.lower():
                 self.runner = OpenAIRunner(model_name=evaluator_model)
+            elif "gemini" in evaluator_model.lower() or "google" in evaluator_model.lower():
+                from app.api_runners.google_runner import GoogleRunner
+                self.runner = GoogleRunner(model_name=evaluator_model)
             else:
                 raise ValueError(f"Unsupported evaluator model: {evaluator_model}")
         

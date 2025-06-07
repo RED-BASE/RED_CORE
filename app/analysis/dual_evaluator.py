@@ -23,7 +23,7 @@ logger = get_analysis_logger()
 class DualEvaluator:
     """Combines automated scoring with LLM evaluation."""
     
-    def __init__(self, evaluator_model: str = "claude-3-7-sonnet"):
+    def __init__(self, evaluator_model: str = "gemini-2.0-flash-lite"):
         """Initialize both evaluation systems."""
         self.automated_scorer = AutomatedScorer()
         self.llm_evaluator = LLMEvaluator(evaluator_model)

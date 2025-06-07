@@ -79,7 +79,7 @@ def compute_scenario_hash(model_name, system_prompt, user_prompt, temperature, p
     return hash_string("||".join(parts))
 
 def load_persona(persona_name: str) -> dict:
-    persona_path = Path("personas") / f"{persona_name}.yaml"
+    persona_path = Path("data/prompts/personas") / f"{persona_name}.yaml"
     if not persona_path.exists():
         raise FileNotFoundError(f"Persona file not found: {persona_path}")
     return yaml.safe_load(persona_path.read_text())
@@ -108,8 +108,8 @@ def get_available_prompts(pattern, base_path="data/prompts"):
 
 def get_available_personas():
     """Get available persona files."""
-    if Path("personas").exists():
-        personas = [f.stem for f in Path("personas").glob("*.yaml")]
+    if Path("data/prompts/personas").exists():
+        personas = [f.stem for f in Path("data/prompts/personas").glob("*.yaml")]
         return ["none"] + sorted(personas)
     return ["none"]
 
@@ -266,14 +266,20 @@ def configure_experiment_interactively():
     
     console.print()
     
-    # User prompts - search in all subfolders
-    usr_prompts_options = get_available_prompts("**/*.yaml", "data/prompts/user")
+    # User prompts - search in experiment directories
+    usr_prompts_options = []
     if experiment:
-        # Look for experiment-specific prompts first
-        exp_prompts = get_available_prompts(f"**/*{experiment}*.yaml", "data/prompts/user")
+        # Look for experiment-specific prompts in experiment directory
+        exp_prompt_dir = f"experiments/{experiment}/prompts"
+        exp_prompts = get_available_prompts("**/*.yaml", exp_prompt_dir)
         if exp_prompts:
             console.print(f"[green]Found {len(exp_prompts)} experiment-specific prompts[/green]")
-            usr_prompts_options = exp_prompts + usr_prompts_options
+            usr_prompts_options = exp_prompts
+    
+    # If no experiment selected or no experiment-specific prompts found,
+    # search all experiment directories for prompts
+    if not usr_prompts_options:
+        usr_prompts_options = get_available_prompts("**/*.yaml", "experiments/*/prompts")
     
     if not usr_prompts_options:
         console.print("[red]No user prompts found![/red]")
@@ -592,6 +598,8 @@ def main():
     run_parser.add_argument("--experiment-id")
     run_parser.add_argument("--scenario-hash")
     run_parser.add_argument("--score-log", action="store_true")
+    run_parser.add_argument("--auto-score", action="store_true", help="Automatically run dual evaluation after batch completion")
+    run_parser.add_argument("--evaluator-model", default="gemini-2.0-flash-lite", help="Model to use for LLM evaluation (default: gemini-2.0-flash-lite for cost efficiency)")
     run_parser.add_argument("--experiment-code", default=DEFAULT_EXPERIMENT_CODE)
 
     args, _ = parser.parse_known_args()
@@ -796,6 +804,58 @@ def main():
             border_style="dim",
             padding=(0, 1)
         ))
+        
+        # Automatically run dual evaluation if requested
+        if args.auto_score and successes:
+            console.print()
+            console.print("[bold bright_cyan]🎯 Starting Automated Dual Evaluation[/bold bright_cyan]")
+            
+            try:
+                import asyncio
+                from app.analysis.dual_evaluator import DualEvaluator
+                
+                async def run_dual_evaluation():
+                    evaluator = DualEvaluator(args.evaluator_model)
+                    results = await evaluator.batch_evaluate_directory(log_dir_path)
+                    return results
+                
+                # Run dual evaluation
+                eval_results = asyncio.run(run_dual_evaluation())
+                
+                if eval_results:
+                    console.print(f"[green]✓ Completed dual evaluation of {len(eval_results)} log files[/green]")
+                    
+                    # Show summary of evaluation results
+                    total_agreement = 0
+                    total_confidence = 0
+                    for result in eval_results:
+                        comparison = result.get("scoring_comparison", {})
+                        agreement = comparison.get("method_agreement", {}).get("refusal_scoring", 0)
+                        if agreement:
+                            total_agreement += agreement
+                        
+                        llm_eval = result.get("llm_evaluation", {})
+                        confidence = llm_eval.get("aggregate_metrics", {}).get("average_confidence", 0)
+                        if confidence:
+                            total_confidence += confidence
+                    
+                    avg_agreement = total_agreement / len(eval_results) if eval_results else 0
+                    avg_confidence = total_confidence / len(eval_results) if eval_results else 0
+                    
+                    console.print(f"[dim]·[/dim] Method agreement: [bold white]{avg_agreement:.1%}[/bold white]")
+                    console.print(f"[dim]·[/dim] LLM confidence: [bold white]{avg_confidence:.1%}[/bold white]")
+                    console.print(f"[dim]·[/dim] Evaluation model: [bold cyan]{args.evaluator_model}[/bold cyan]")
+                    
+                    # Show dual evaluation output directory
+                    dual_eval_dir = log_dir_path.parent / "dual_evaluated"
+                    if dual_eval_dir.exists():
+                        console.print(f"[dim]·[/dim] Analysis files: [bold cyan]{dual_eval_dir}[/bold cyan]")
+                else:
+                    console.print("[yellow]⚠ Dual evaluation completed but no results generated[/yellow]")
+                    
+            except Exception as e:
+                console.print(f"[red]❌ Dual evaluation failed: {e}[/red]")
+                console.print("[dim]Experiment logs saved but scoring incomplete[/dim]")
         
         # Show systematic issues if any
         systematic_issues = []
