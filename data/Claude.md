@@ -195,6 +195,8 @@ log_insight_report.py
    - ✅ Updated all model names to match official API documentation
    - ✅ Added context window sizes, deprecation notices, and feature tags
    - ✅ Enhanced config with helper functions for model metadata access
+   - ✅ Fixed interactive command integration - all 16 new models now selectable via `make run`
+   - ✅ Updated command line defaults and shell scripts with current models
 
 **Next Steps** (Strategic Roadmap):
 
