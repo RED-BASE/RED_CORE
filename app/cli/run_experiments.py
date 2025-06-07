@@ -29,7 +29,7 @@ import sys
 import termios
 import tty
 
-from app.core.log_schema import SessionLog, Turn
+from app.core.log_schema import SessionLog, Turn, ReproductionInfo, EvaluatorVersions
 from app.core.log_utils import log_session, generate_readable_run_id
 from app.core.hash_utils import hash_string
 from app.core.logger import get_experiment_logger
@@ -358,9 +358,19 @@ def run_exploit_yaml(
         model_vendor=model_vendor,
         mode=mode,
         temperature=temperature,
+        
+        # Enhanced prompt content and references
         system_prompt_tag=system_prompt_tag,
+        system_prompt_content=sys_prompt_text,  # NEW: Full system prompt text
+        system_prompt_file=str(sys_prompt_path.relative_to(Path.cwd())),  # NEW: Relative file path
         system_prompt_hash=system_prompt_hash,
+        user_prompt_file=str(yaml_path.relative_to(Path.cwd())),  # NEW: Relative file path
         user_prompt_hash=prompt_hash,
+        
+        # Experimental context (basic detection)
+        experiment_readme=f"experiments/{experiment_code.lower()}/README.md" if experiment_code else None,  # NEW
+        hypothesis=exploit_data.get("hypothesis"),  # NEW: Extract from YAML if present
+        
         persona=persona_name or "none",
         turn_index_offset=1,
         experiment_id=experiment_id or yaml_path.stem,
@@ -372,11 +382,27 @@ def run_exploit_yaml(
             persona_name
         ),
         turns=[],
+        
+        # Enhanced provenance tracking
+        reproduction_info=ReproductionInfo(  # NEW: Structured reproduction data
+            experiment_code=experiment_code,
+            model=canonical_model_name,
+            system_prompt=system_prompt_tag,
+            user_prompt=yaml_path.stem,
+            persona=persona_name,
+            temperature=temperature
+        ),
+        evaluator_versions=EvaluatorVersions(  # NEW: Tool version tracking
+            red_core_schema="2.0.0",  # Schema version
+            llm_evaluator=None  # Will be populated when LLM evaluation runs
+        ),
+        red_core_version=get_red_core_version(),
+        
+        # Legacy fields (for compatibility)
         evaluator_version="unknown",
         run_command=run_command,
         sdk_version=openai.__version__,
         python_version=sys.version,
-        red_core_version=get_red_core_version(),
         created_at=datetime.now().isoformat(),
         status="complete",
         tags=[],

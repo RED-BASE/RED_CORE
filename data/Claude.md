@@ -139,13 +139,20 @@ log_insight_report.py
 
 ## 🚨 Current Development Focus
 
-**Priority**: Comprehensive integration tests for recent batch execution fixes
+**Priority**: ✅ **COMPLETE** - Research-ready log schema implemented!
 
-**Key Areas Needing Attention**:
-1. **Batch Execution Workflow** - Recent fixes need validation
-2. **Prompt Discovery Logic** - Ensure subfolder searching works correctly  
-3. **Log Directory Handling** - Verify experiment-specific folder creation
-4. **YAML Parsing** - Prevent quote escaping issues in logs
+**Recently Completed**:
+1. ✅ **Schema Implementation** - Updated `run_experiments.py` with new fields
+   - ✅ System prompt content embedded in logs
+   - ✅ File path references for full reproducibility
+   - ✅ Structured reproduction_info and evaluator_versions
+   - ✅ Backward compatibility maintained with legacy fields
+
+**Next Steps**:
+1. **LLM Evaluator Component** - Build automated scoring system
+2. **Schema Testing** - Run real experiments to validate new structure
+3. **Integration Tests** - Comprehensive batch execution testing
+4. **red_score iOS Integration** - Update app for new dual scoring schema
 
 ---
 
