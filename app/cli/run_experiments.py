@@ -578,6 +578,11 @@ def main():
             user_prompt_yaml = yaml.safe_load(f)
         num_turns_per_experiment = len(user_prompt_yaml.get("variants", []))
         total_turns = len(combinations) * num_turns_per_experiment
+        
+        # Calculate expected experiments per model for systematic failure detection
+        experiments_per_model = len(sys_prompts) * len(usr_prompts) * len(personas) * repetitions
+        num_turns_per_model = experiments_per_model * num_turns_per_experiment
+        
         turn_counter = 0
         lock = threading.Lock()
 
