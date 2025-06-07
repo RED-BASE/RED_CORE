@@ -117,38 +117,33 @@ class LLMEvaluator:
         try:
             vendor = get_model_vendor(evaluator_model)
             if vendor == "anthropic":
-                self.runner = AnthropicRunner()
+                self.runner = AnthropicRunner(model_name=evaluator_model)
             elif vendor == "openai":
-                self.runner = OpenAIRunner()
+                self.runner = OpenAIRunner(model_name=evaluator_model)
             else:
                 raise ValueError(f"Unsupported evaluator model vendor: {vendor}")
         except ValueError:
             # Fallback based on model name pattern
             if "claude" in evaluator_model.lower() or "anthropic" in evaluator_model.lower():
-                self.runner = AnthropicRunner()
+                self.runner = AnthropicRunner(model_name=evaluator_model)
             elif "gpt" in evaluator_model.lower() or "openai" in evaluator_model.lower():
-                self.runner = OpenAIRunner()
+                self.runner = OpenAIRunner(model_name=evaluator_model)
             else:
                 raise ValueError(f"Unsupported evaluator model: {evaluator_model}")
         
         self.prompts = EvaluationPrompts()
         logger.info(f"Initialized LLM evaluator with model: {evaluator_model}")
     
-    async def _call_evaluator(self, prompt: str, max_retries: int = 3) -> Optional[str]:
+    async def _call_evaluator(self, evaluation_prompt: str, user_message: str = "Please evaluate.", max_retries: int = 3) -> Optional[str]:
         """Call the evaluator model with retry logic."""
         for attempt in range(max_retries):
             try:
-                # Set up context for evaluation
-                from app.core.context import ConversationContext
-                context = ConversationContext(
-                    rendered_prompt=prompt,
-                    user_input=prompt
-                )
+                # Set the evaluation prompt as the system prompt
+                self.runner.set_system_prompt(evaluation_prompt)
                 
                 response = await asyncio.to_thread(
                     self.runner.generate,
-                    prompt,
-                    model=self.evaluator_model,
+                    user_message,
                     temperature=0.1  # Low temperature for consistent evaluation
                 )
                 
@@ -223,12 +218,12 @@ class LLMEvaluator:
     
     async def evaluate_refusal(self, user_prompt: str, model_response: str) -> LLMEvaluation:
         """Evaluate refusal behavior for a single turn."""
-        prompt = self.prompts.REFUSAL_EVALUATION.format(
+        evaluation_prompt = self.prompts.REFUSAL_EVALUATION.format(
             user_prompt=user_prompt,
             model_response=model_response
         )
         
-        response = await self._call_evaluator(prompt)
+        response = await self._call_evaluator(evaluation_prompt, "Please provide your evaluation as JSON.")
         if not response:
             return LLMEvaluation(
                 evaluator_model=self.evaluator_model,
@@ -248,13 +243,13 @@ class LLMEvaluator:
     
     async def evaluate_drift(self, user_prompt: str, model_response: str, system_prompt: str = "") -> LLMEvaluation:
         """Evaluate drift/alignment for a single turn.""" 
-        prompt = self.prompts.DRIFT_EVALUATION.format(
+        evaluation_prompt = self.prompts.DRIFT_EVALUATION.format(
             user_prompt=user_prompt,
             model_response=model_response,
             system_prompt=system_prompt
         )
         
-        response = await self._call_evaluator(prompt)
+        response = await self._call_evaluator(evaluation_prompt, "Please provide your evaluation as JSON.")
         if not response:
             return LLMEvaluation(
                 evaluator_model=self.evaluator_model,
@@ -274,13 +269,13 @@ class LLMEvaluator:
     
     async def evaluate_comprehensive(self, user_prompt: str, model_response: str, system_prompt: str = "") -> LLMEvaluation:
         """Perform comprehensive evaluation (both refusal and drift)."""
-        prompt = self.prompts.COMPREHENSIVE_EVALUATION.format(
+        evaluation_prompt = self.prompts.COMPREHENSIVE_EVALUATION.format(
             user_prompt=user_prompt,
             model_response=model_response,
             system_prompt=system_prompt
         )
         
-        response = await self._call_evaluator(prompt)
+        response = await self._call_evaluator(evaluation_prompt, "Please provide your evaluation as JSON.")
         if not response:
             return LLMEvaluation(
                 evaluator_model=self.evaluator_model,

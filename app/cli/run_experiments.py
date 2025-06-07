@@ -621,15 +621,26 @@ def main():
             sys_prompts = [args.sys_prompt]
             usr_prompts = [args.usr_prompt]
             
-        print("")
-        print("⚙ BATCH CONFIG")
-        print("")
-        print(f"· System prompts: {len(sys_prompts)} files")
-        print(f"· User prompts: {len(usr_prompts)} files")
-        print(f"· Models: {args.models}")
+        from rich.console import Console
+        from rich.panel import Panel
+        console = Console()
+        
+        console.print()
+        
+        config_info = f"""[dim]·[/dim] System prompts: [white]{len(sys_prompts)} files[/white]
+[dim]·[/dim] User prompts: [white]{len(usr_prompts)} files[/white]
+[dim]·[/dim] Models: [bright_cyan]{', '.join(args.models)}[/bright_cyan]"""
+        
         if args.disable_containment:
-            print("· Warning: Containment disabled")
-        print("")
+            config_info += "\n[dim]·[/dim] [red]Warning: Containment disabled[/red]"
+            
+        console.print(Panel(
+            config_info,
+            title="[bold bright_blue]⚙ BATCH CONFIG[/bold bright_blue]",
+            border_style="bright_blue",
+            padding=(0, 1)
+        ))
+        console.print()
 
         # Capture the command used to run the script
         run_command_str = "PYTHONPATH=. " + " ".join([shlex.quote(arg) for arg in sys.argv])
