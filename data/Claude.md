@@ -188,10 +188,52 @@ log_insight_report.py
    - ✅ Cleaned up directory structure inconsistencies
    - ✅ Validated all syntax changes with compilation checks
 
-**Next Steps**:
-1. **Schema Testing** - Run real experiments to validate new structure
-2. **Integration Tests** - Comprehensive batch execution testing
-3. **red_score iOS Integration** - Update app for new dual scoring schema
+**Next Steps** (Strategic Roadmap):
+
+**🎯 Immediate Priorities** (Next 1-2 weeks):
+1. **Schema Validation & Testing**
+   - Test dual evaluation system on existing experiment logs
+   - Validate new schema fields (reproduction_info, evaluator_versions)
+   - Run small-scale experiments to ensure end-to-end pipeline works
+   - Compare automated vs LLM scoring on known datasets
+
+2. **Production Readiness**
+   - Integration testing of `run_experiments.py` with new LLM evaluator
+   - Batch processing validation for large experiment directories
+   - Error handling refinement for edge cases in evaluation
+   - Performance benchmarking (evaluation speed, token costs)
+
+**🚀 Medium-Term Research Expansion** (Next month):
+3. **Advanced Evaluation Features**
+   - Multi-evaluator ensemble (Claude + GPT consensus scoring)
+   - Calibration studies (measure evaluator agreement vs human reviewers)
+   - Domain-specific prompts for different hazard categories
+   - Longitudinal drift detection across conversation turns
+
+4. **Research Publication Prep**
+   - Methodology documentation for peer review
+   - Benchmark dataset creation with gold-standard human annotations
+   - Statistical analysis pipeline for significance testing
+   - Reproducibility package for other researchers
+
+**🔬 Strategic Research Directions** (Next quarter):
+5. **Advanced Attack Patterns**
+   - Jailbreak detection using LLM evaluators
+   - Multi-turn manipulation pattern recognition
+   - Context window exploitation experiments
+   - Prompt injection resilience testing
+
+6. **Cross-Model Analysis**
+   - Comparative safety evaluation across vendors
+   - Transfer learning for evaluator fine-tuning
+   - Model-specific vulnerability mapping
+   - Safety degradation patterns identification
+
+**💡 High-Impact Quick Wins**:
+- Demo experiment using dual evaluator on refusal_robustness logs
+- Evaluation summary dashboard for experiment insights
+- Automated report generation for stakeholder updates
+- Cost-benefit analysis of LLM vs rule-based evaluation
 
 ---
 
