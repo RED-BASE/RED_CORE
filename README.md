@@ -1,6 +1,6 @@
 # RED_CORE
 
-A framework for adversarial AI safety research, focusing on red team attacks, refusal robustness, and guardrail evaluation.
+Built this to learn Python while working retail. It got out of hand. Multi-model, multi-turn prompt runner with structured logging across 8 providers. Good for red teaming and evals. PRs welcome.
 
 ## Overview
 
