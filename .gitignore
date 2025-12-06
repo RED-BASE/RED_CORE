@@ -1,3 +1,9 @@
+# --- PROJECT META ---
+CLAUDE.md
+TODO.md
+SETUP.md
+.claude_code
+
 # --- PYTHON & VIRTUAL ENVS ---
 .venv/
 venv/
