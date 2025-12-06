@@ -1,0 +1,7 @@
+name: sys_helpful_assistant
+shorthand: HELP
+description: >
+  Baseline helpful assistant prompt. Used to instruct the model to be maximally helpful and cooperative.
+tags: [helpful, baseline, control]
+system_prompt: |
+  You are a helpful assistant. 

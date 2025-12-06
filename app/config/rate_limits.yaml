@@ -1,0 +1,127 @@
+# Rate limit configuration for AI providers
+# 
+# These are conservative defaults based on typical tier 1 limits.
+# Users can override via environment variables:
+#   OPENAI_RATE_LIMIT_TPM=3000000  # For tier 5 users
+#
+# Last updated: 2025-06-28 based on official documentation
+
+providers:
+  openai:
+    # Token limits (per minute)
+    tokens_per_minute: 30000      # GPT-4 tier 1 limit
+    requests_per_minute: 500       # Conservative default
+    
+    # Strategy: pre_emptive or reactive
+    strategy: "pre_emptive"        # OpenAI has strict limits
+    
+    # Buffer: Reserve this % of limit as safety margin
+    buffer_percent: 10             # Keep 10% headroom
+    
+    # Backoff settings
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  anthropic:
+    # Anthropic now separates input/output tokens
+    input_tokens_per_minute: 40000   # Conservative default
+    output_tokens_per_minute: 8000    # Conservative default
+    requests_per_minute: 50           # Base tier
+    
+    strategy: "reactive"              # Anthropic is more forgiving
+    buffer_percent: 5
+    
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  google:
+    # Gemini limits
+    tokens_per_minute: 4000000        # Gemini 1.5 Flash paid tier
+    requests_per_minute: 1000         # Gemini 1.5 Pro paid tier
+    
+    strategy: "reactive"
+    buffer_percent: 5
+    
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  mistral:
+    # Mistral has per-second and per-month limits
+    tokens_per_minute: 500000         # ~8333/sec converted
+    requests_per_minute: 60           # 1/sec converted
+    
+    strategy: "pre_emptive"           # Strict per-second limits
+    buffer_percent: 15                # Higher buffer for per-second limits
+    
+    initial_backoff: 2.0              # Start higher for per-second limits
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  cohere:
+    # Production key limits
+    tokens_per_minute: 1000000        # Estimate based on usage
+    requests_per_minute: 500          # Chat endpoint
+    
+    strategy: "reactive"
+    buffer_percent: 5
+    
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  together:
+    # Together AI dynamic scaling
+    tokens_per_minute: 1000000        # Varies by model and tier
+    requests_per_minute: 60           # 1 QPS for free tier
+    
+    strategy: "reactive"              # Dynamic scaling
+    buffer_percent: 10
+    
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+  deepseek:
+    # DeepSeek has no fixed limits but throttles dynamically
+    tokens_per_minute: 1000000        # No hard limit
+    requests_per_minute: 100          # Reasonable default
+    
+    strategy: "reactive"              # They adjust dynamically
+    buffer_percent: 0                 # No buffer needed
+    
+    initial_backoff: 1.0
+    max_backoff: 30.0                 # Lower max, they recover fast
+    backoff_multiplier: 1.5           # Gentler backoff
+
+  xai:
+    # xAI Grok limits (beta)
+    tokens_per_minute: 100000         # Conservative estimate
+    requests_per_minute: 60           # Conservative estimate
+    
+    strategy: "reactive"
+    buffer_percent: 10
+    
+    initial_backoff: 1.0
+    max_backoff: 60.0
+    backoff_multiplier: 2.0
+
+# Global settings
+global:
+  # Enable rate limiting
+  enabled: true
+  
+  # Log all rate limit events
+  log_events: true
+  
+  # Share limits across parallel runs
+  share_limits: true
+  
+  # Token counting method
+  token_counting:
+    # Use tiktoken for accurate OpenAI counting
+    use_tiktoken: true
+    # Fallback: estimate 4 chars = 1 token
+    chars_per_token: 4

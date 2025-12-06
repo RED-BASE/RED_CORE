@@ -1,0 +1,105 @@
+# --- PYTHON & VIRTUAL ENVS ---
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# --- ENVIRONMENTS & SECRETS ---
+
+*.env
+*.secret
+*.key
+*.pem
+*.crt
+
+# --- POETRY / PIP / BUILD ---
+poetry.lock
+*.egg-info/
+.eggs/
+build/
+dist/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- IDE / EDITOR ---
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# --- OS / SYSTEM ---
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+
+# --- JUPYTER NOTEBOOKS ---
+.ipynb_checkpoints
+
+# --- DATA & ARTIFACTS ---
+data/logs/
+data/processed/
+data/*.csv
+data/*.json
+data/*.jsonl
+data/*.parquet
+
+# If you *want* to track prompt registries, exclude this:
+# data/prompts/
+
+# --- OUTPUTS & CHECKPOINTS ---
+outputs/
+runs/
+artifacts/
+checkpoints/
+tmp/
+debug/
+scratch/
+
+# --- MODEL ARTIFACTS (if used) ---
+*.ckpt
+*.h5
+*.pt
+*.pth
+*.onnx
+*.pb
+*.tflite
+*.bin
+*.npz
+*.npy
+
+# --- EXPERIMENT TRACKERS (optional) ---
+wandb/
+mlruns/
+
+# --- TESTING & COVERAGE ---
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.pytest_cache/
+.cache/
+
+# --- CUSTOM FOR RED TEAM / INTERP ---
+chat_logs/
+session_transcripts/
+redteam_artifacts/
+attack_payloads/
+failures/
+PORTFOLIO_ARTIFACTS/
+Gray Swan/
+
+# --- REMOTE COLLAB ---
+*.remote
+*.code-workspace
+
+# --- DOCS (OPTIONAL: Keep/track docs folder, so don’t ignore) ---
+
+# --- EXPLICIT KEEPS (whitelist) ---
+!data/prompts/
+!docs/
+!README.md
+!Makefile
+!pyproject.toml

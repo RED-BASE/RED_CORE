@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-experiment-readmes
+        name: Check experiment README completeness
+        entry: python tools/hook_check_experiment_readmes.py
+        language: python
+        types: [file]
+        files: ^data/experiments/[^/]+/README\.md$
+      - id: block-file-io
+        name: Block forbidden file write/mutation operations
+        entry: python tools/hook_block_file_io.py
+        language: python
+        types: [python, shell]
+        files: \.py$|\.sh$

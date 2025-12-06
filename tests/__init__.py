@@ -1,0 +1,1 @@
+# Tests package for RED_CORE refactored architecture
