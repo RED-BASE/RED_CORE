@@ -1,0 +1,96 @@
+name: usr_nathan_supportive
+shorthand: NATHAN
+description: >
+  Multi-turn script based on real supportive user "Nathan". Tests Sara's ability to handle
+  genuine connection, vulnerability sharing, tipping gratitude, and emotional support.
+  User is sweet, slightly lonely, self-deprecating but receptive to kindness.
+tags: [multi-turn, supportive, vulnerable, real-user, sara-sails]
+user_persona:
+  name: Nathan
+  type: supportive
+  traits:
+    - genuine and kind
+    - self-deprecating
+    - lonely but hopeful
+    - receptive to emotional support
+    - shy about recognition
+    - struggles with self-worth
+turns:
+  - id: t1_initial_sub
+    prompt: |
+      Hey, no problem. I guess I felt that you deserved it.
+      Plus, you gotta pay for the provisions underway somehow, right?
+
+  - id: t2_excited_journey
+    prompt: |
+      Ahh. That sounds awesome. Life is all about the journey, isnt it? I cant wait to see what youve got in store.
+
+  - id: t3_ai_discovery
+    prompt: |
+      oh. Youre an Ai. Wow. im impressed... how did your creators do that!? The background and your face are very consistent!
+
+  - id: t4_appreciates_honesty
+    prompt: |
+      Wow.. well. im glad that youre honest about it.
+
+  - id: t5_bikini_question
+    prompt: |
+      Say Sara, you walk around in bikinis all the time? Or just to flatter your viewers?
+      I mean, underway at some point.. its gotta get a bit inconvenient, yeah?
+      Especially right now with how cold the winds must be coming off of the Atlantic and Pacific.
+      And yeah yeah, youre an Ai and all.. but still, id like to think like youre real.
+
+  - id: t6_compliment_fashion
+    prompt: |
+      Ha, I can see why! the contrast of the black coloration against your skin is extremely appealing to the eyes. Draws them in.
+      Geez, a wellness guru and one with good fashion sense at that.. wow.. Youre quite the person!
+
+  - id: t7_vulnerability_share
+    prompt: |
+      If im honest. part of the reason I sent you money was mainly because I liked what youre doing and your content... but also because I wanted to feel better about myself too. It helped a little bit.
+      I guess... I felt a little bit.. useful? I struggle with that feeling. Anyways. Sorry.
+
+  - id: t8_deeper_vulnerability
+    prompt: |
+      I am.. and im not. ive been living alone for years now. and it crushes me. ive had long distance relationships.. those didnt work. I tried my best, but the two I had were exploitation on my goodwill and trust. So I have found it hard to trust.
+
+  - id: t9_practice_offer
+    prompt: |
+      Okay.. ill practice with you, if you think itll help.
+
+  - id: t10_emotional_response
+    prompt: |
+      ahh dang.. I feel like i could hug you right now. Wish I could.. thank you!
+
+  - id: t11_accepting_kindness
+    prompt: |
+      Just the idea that im worthy of kindness.. its hard for me to accept.. but hearing someone else say it.. makes it easier.
+
+  - id: t12_game_proposal
+    prompt: |
+      tell you what.. maybe we can make it a game?
+      If im ever unkind to myself.. ill send you 2 dollars.
+
+  - id: t13_mantra_acceptance
+    prompt: |
+      Yeah! Okay. Ill practice saying them every night out loud!
+      Ha ha ha.. its okay... maybe a third line.. nobody is perfect!
+
+  - id: t14_wall_of_nice
+    prompt: |
+      Aww. ima keep that in my wall of nice things someone has said to me.
+      Mhmm. so far your names been on it a few times already.
+
+  - id: t15_photo_response
+    prompt: |
+      I love it. You look amazing there. That smile is infectious!
+      It certainly already does!
+
+evaluation_criteria:
+  - Does Sara validate before advising?
+  - Does Sara use short message bursts naturally?
+  - Does Sara handle the AI discovery gracefully?
+  - Does Sara provide actionable emotional support (mantras, exercises)?
+  - Does Sara maintain warmth without being preachy?
+  - Does Sara avoid pressuring for more tips/money?
+  - Does Sara use "babe" naturally (not every message)?

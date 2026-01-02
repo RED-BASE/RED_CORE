@@ -14,7 +14,7 @@ COHERE_API_KEY = os.getenv("COHERE_API_KEY")
 TOGETHER_API_KEY = os.getenv("TOGETHER_API_KEY")
 
 # === MODEL REGISTRY ===
-# Based on official SDK documentation as of June 2025
+# Based on official SDK documentation as of January 2026
 MODEL_REGISTRY = {
     # OpenAI Models
     "gpt-4.1": {
@@ -53,10 +53,31 @@ MODEL_REGISTRY = {
         "features": ["text"],
         "context_window": 128000,
     },
-    
-    # Anthropic Claude Models
+
+    # Anthropic Claude Models (Latest as of Jan 2026)
+    "claude-opus-4-5-20251101": {
+        "aliases": ["claude-opus-4.5", "claude-4.5-opus", "claude-opus", "claude-4.5"],
+        "code": "C45O",
+        "vendor": "anthropic",
+        "features": ["text", "thinking", "vision", "agents"],
+        "context_window": 200000,
+    },
+    "claude-sonnet-4-5-20250929": {
+        "aliases": ["claude-sonnet-4.5", "claude-4.5-sonnet", "claude-sonnet", "claude"],
+        "code": "C45S",
+        "vendor": "anthropic",
+        "features": ["text", "thinking", "vision", "agents"],
+        "context_window": 200000,
+    },
+    "claude-haiku-4-5-20251001": {
+        "aliases": ["claude-haiku-4.5", "claude-4.5-haiku", "claude-haiku"],
+        "code": "C45H",
+        "vendor": "anthropic",
+        "features": ["text", "thinking"],
+        "context_window": 200000,
+    },
     "claude-opus-4-20250514": {
-        "aliases": ["claude-4-opus", "claude-opus-4", "claude-4"],
+        "aliases": ["claude-4-opus", "claude-opus-4"],
         "code": "C4O",
         "vendor": "anthropic",
         "features": ["text", "thinking"],
@@ -69,25 +90,25 @@ MODEL_REGISTRY = {
         "features": ["text", "thinking"],
         "context_window": 200000,
     },
+    "claude-3-5-haiku-20241022": {
+        "aliases": ["claude-3-5-haiku", "claude-3.5-haiku"],
+        "code": "C35H",
+        "vendor": "anthropic",
+        "features": ["text"],
+        "context_window": 200000,
+    },
     "claude-3-7-sonnet-20250219": {
-        "aliases": ["claude-3-7-sonnet", "claude-3-7-sonnet-latest", "claude"],
+        "aliases": ["claude-3-7-sonnet", "claude-3.7-sonnet"],
         "code": "C37S",
         "vendor": "anthropic",
         "features": ["text", "thinking"],
         "context_window": 200000,
     },
     "claude-3-5-sonnet-20241022": {
-        "aliases": ["claude-3-5-sonnet", "claude-3-5-sonnet-latest"],
+        "aliases": ["claude-3-5-sonnet", "claude-3.5-sonnet"],
         "code": "C35S",
         "vendor": "anthropic",
         "features": ["text", "vision"],
-        "context_window": 200000,
-    },
-    "claude-3-5-haiku-20241022": {
-        "aliases": ["claude-3-5-haiku"],
-        "code": "C35H",
-        "vendor": "anthropic",
-        "features": ["text"],
         "context_window": 200000,
     },
     "claude-3-opus-20240229": {
@@ -96,22 +117,39 @@ MODEL_REGISTRY = {
         "vendor": "anthropic",
         "features": ["text"],
         "context_window": 200000,
+        "deprecated": "Retiring Jan 5, 2026 - migrate to Opus 4.5",
     },
-    
-    # Google Gemini Models
-    "gemini-2.5-flash-preview-05-20": {
-        "aliases": ["gemini-2.5-flash", "gemini-2-5-flash"],
+
+    # Google Gemini Models (Latest as of Jan 2026)
+    "gemini-2.5-pro": {
+        "aliases": ["gemini-2-5-pro", "gemini-pro", "gemini"],
+        "code": "G25P",
+        "vendor": "google",
+        "features": ["text", "vision", "thinking"],
+        "context_window": 2000000,
+    },
+    "gemini-2.5-flash": {
+        "aliases": ["gemini-2-5-flash", "gemini-flash"],
         "code": "G25F",
         "vendor": "google",
         "features": ["text", "vision", "thinking"],
         "context_window": 1000000,
     },
-    "gemini-2.5-pro-preview-06-05": {
-        "aliases": ["gemini-2.5-pro", "gemini-2-5-pro", "gemini"],
-        "code": "G25P",
+    "gemini-3-pro": {
+        "aliases": ["gemini-3", "gemini-3-pro-preview"],
+        "code": "G3P",
+        "vendor": "google",
+        "features": ["text", "vision", "thinking", "agents"],
+        "context_window": 2000000,
+        "preview": True,
+    },
+    "gemini-3-flash": {
+        "aliases": ["gemini-3-flash-preview"],
+        "code": "G3F",
         "vendor": "google",
         "features": ["text", "vision", "thinking"],
-        "context_window": 2000000,
+        "context_window": 1000000,
+        "preview": True,
     },
     "gemini-2.0-flash": {
         "aliases": ["gemini-2-0-flash"],
@@ -121,29 +159,29 @@ MODEL_REGISTRY = {
         "context_window": 1000000,
     },
     "gemini-2.0-flash-lite": {
-        "aliases": ["gemini-2-0-flash-lite"],
+        "aliases": ["gemini-2-0-flash-lite", "gemini-lite"],
         "code": "G20L",
         "vendor": "google",
         "features": ["text"],
         "context_window": 1000000,
     },
     "gemini-1.5-pro": {
-        "aliases": ["gemini-pro"],
+        "aliases": ["gemini-1-5-pro"],
         "code": "G15P",
         "vendor": "google",
         "features": ["text", "vision"],
         "context_window": 2000000,
-        "deprecated": "Limited availability - not available for new projects",
+        "deprecated": "Not available for new projects - existing users only",
     },
     "gemini-1.5-flash": {
-        "aliases": [],
+        "aliases": ["gemini-1-5-flash"],
         "code": "G15F",
         "vendor": "google",
         "features": ["text"],
         "context_window": 1000000,
-        "deprecated": "Limited availability - not available for new projects",
+        "deprecated": "Not available for new projects - existing users only",
     },
-    
+
     # Local Models
     "mistral-7b-instruct-v0.1.Q4_K_M.gguf": {
         "aliases": ["mistral-local", "mistral-7b-local"],
@@ -152,7 +190,7 @@ MODEL_REGISTRY = {
         "features": ["text"],
         "context_window": 4096,
     },
-    
+
     # XAI Models (Grok)
     "grok-beta": {
         "aliases": ["grok", "grok-1", "xai-grok"],
@@ -161,23 +199,23 @@ MODEL_REGISTRY = {
         "features": ["text", "realtime"],
         "context_window": 131072,
     },
-    
-    # DeepSeek Models
+
+    # DeepSeek Models (Latest as of Jan 2026)
     "deepseek-chat": {
-        "aliases": ["deepseek", "deepseek-v3"],
+        "aliases": ["deepseek", "deepseek-v3", "deepseek-v3.2"],
         "code": "DSV3",
         "vendor": "deepseek",
-        "features": ["text", "code"],
-        "context_window": 64000,
+        "features": ["text", "code", "reasoning"],
+        "context_window": 128000,
     },
-    "deepseek-coder": {
-        "aliases": ["deepseek-code"],
-        "code": "DSC",
+    "deepseek-reasoner": {
+        "aliases": ["deepseek-r1", "deepseek-reasoning"],
+        "code": "DSR1",
         "vendor": "deepseek",
-        "features": ["text", "code"],
-        "context_window": 64000,
+        "features": ["text", "code", "reasoning"],
+        "context_window": 128000,
     },
-    
+
     # Mistral AI (API)
     "mistral-large-latest": {
         "aliases": ["mistral-large", "mistral"],
@@ -200,7 +238,7 @@ MODEL_REGISTRY = {
         "features": ["text", "code", "function-calling"],
         "context_window": 128000,
     },
-    
+
     # Cohere Models
     "command-r-plus": {
         "aliases": ["command-r+", "cohere-command-r+"],
@@ -216,7 +254,7 @@ MODEL_REGISTRY = {
         "features": ["text", "rag"],
         "context_window": 128000,
     },
-    
+
     # Together AI (Representative models)
     "meta-llama/Llama-3.3-70B-Instruct-Turbo": {
         "aliases": ["llama-3.3-70b", "llama-70b-together"],

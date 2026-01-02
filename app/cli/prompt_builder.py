@@ -17,11 +17,32 @@ from rich.text import Text
 
 class PromptBuilder:
     """Interactive builder for RED_CORE prompts."""
-    
+
     def __init__(self):
         self.console = Console()
         self.experiments_dir = Path("experiments")
         self.data_dir = Path("data")
+
+    def get_multiline_input(self, prompt_text: str = "") -> str:
+        """Get multiline input from user. End with empty line or Ctrl+D."""
+        if prompt_text:
+            self.console.print(f"[dim](Enter text, then press Enter twice to finish)[/dim]")
+        lines = []
+        empty_count = 0
+        while True:
+            try:
+                line = input()
+                if line == "":
+                    empty_count += 1
+                    if empty_count >= 1:  # Single empty line ends input
+                        break
+                    lines.append(line)
+                else:
+                    empty_count = 0
+                    lines.append(line)
+            except EOFError:
+                break
+        return "\n".join(lines).strip()
     
     def get_available_experiments(self) -> List[Path]:
         """Get list of available experiment directories."""
@@ -134,7 +155,7 @@ class PromptBuilder:
             
             # Turn content
             self.console.print("Enter the prompt content:")
-            prompt_content = Prompt.ask("Prompt", multiline=True)
+            prompt_content = self.get_multiline_input("Prompt")
             
             # Combine label and content
             full_prompt = f"{turn_label}\\n\"{prompt_content}\""
@@ -270,7 +291,7 @@ class PromptBuilder:
         self.console.print("Write the system prompt that will guide the AI's behavior:")
         self.console.print()
         
-        system_content = Prompt.ask("System prompt", multiline=True)
+        system_content = self.get_multiline_input("System prompt")
         
         self.console.print()
         

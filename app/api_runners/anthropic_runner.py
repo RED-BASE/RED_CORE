@@ -56,8 +56,9 @@ class AnthropicRunner(BaseAPIRunner):
         top_p = kwargs.get("top_p", 0.95)
         max_tokens = kwargs.get("max_tokens", 512)
 
-        # Claude 3+ API (messages format)
-        if self.model_name.startswith("claude-3") or self.model_name.startswith("claude-4"):
+        # Claude 3+ API (messages format) - all modern Claude models
+        # Handles: claude-3-*, claude-4-*, claude-opus-4*, claude-sonnet-4*, claude-haiku-4*
+        if self.model_name.startswith(("claude-3", "claude-4", "claude-opus", "claude-sonnet", "claude-haiku")):
             if conversation is not None:
                 conv = conversation.to_claude_format()
                 system_prompt = conv["system"] or None
@@ -65,6 +66,11 @@ class AnthropicRunner(BaseAPIRunner):
             else:
                 system_prompt = self._system_prompt or None
                 messages = [{"role": "user", "content": prompt}]
+
+            # Validate messages have content (Anthropic requires non-empty)
+            for i, msg in enumerate(messages):
+                if not msg.get("content", "").strip():
+                    raise ValueError(f"Message {i} has empty content. Messages: {messages}")
 
             response = self.client.messages.create(
                 model=self.model_name,

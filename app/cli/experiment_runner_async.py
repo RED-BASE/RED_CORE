@@ -328,16 +328,24 @@ class TurnProcessor:
         raw_prompt = variant.get("prompt", "")
         if not raw_prompt.strip():
             raise ValueError(f"Empty prompt in variant: {variant.get('id', '[no id]')}")
-        
+
         # Parse prompt header and body
+        # Old format: "T1 — Header\n\"actual prompt\""
+        # New format: just the prompt text (possibly multiline)
+        header = ""
+        prompt_body = raw_prompt.strip()
+
+        # Check if this is the old format (first line is a label like "T1 — ...")
         if "\n" in raw_prompt:
-            header, body = raw_prompt.split("\n", 1)
-        else:
-            header, body = "", raw_prompt
-        
-        prompt_body = body.strip()
+            first_line = raw_prompt.split("\n", 1)[0].strip()
+            # Old format detection: first line contains "—" or "T{digit}" pattern
+            if "—" in first_line or (first_line.startswith("T") and len(first_line) > 1 and first_line[1].isdigit()):
+                header, body = raw_prompt.split("\n", 1)
+                prompt_body = body.strip()
+
+        # Remove surrounding quotes if present (old format used quoted strings)
         if prompt_body.startswith('"') and prompt_body.endswith('"'):
-            prompt_body = prompt_body[1:-1]  # Remove YAML literal quotes
+            prompt_body = prompt_body[1:-1]
         
         # Create conversation context
         ctx = ConversationContext(
@@ -351,15 +359,20 @@ class TurnProcessor:
         )
         ctx.user_input = prompt_body
         history.append_user(prompt_body)
-        
+
+        # DEBUG: Check prompt_body isn't empty
+        if not prompt_body.strip():
+            raise ValueError(f"prompt_body is empty after processing! raw_prompt was: {repr(raw_prompt[:200])}")
+
         # Generate model response
         generate_kwargs = {
             "temperature": config.temperature,
             "turn_index": turn_index,
         }
-        if model_metadata.vendor in {"google", "openai"}:
+        # Pass conversation history to all providers that support it
+        if model_metadata.vendor in {"google", "openai", "anthropic"}:
             generate_kwargs["conversation"] = history
-        
+
         start_time = time.time()
         result = self.runner.generate(prompt_body, **generate_kwargs)
         latency_ms = (time.time() - start_time) * 1000
